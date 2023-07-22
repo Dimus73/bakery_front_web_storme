@@ -4,6 +4,8 @@ import { FieldCheck } from '../../Utils/Fieldcheck';
 import './Ingredients.css';
 import { Button, Modal } from 'react-bootstrap'
 import { setLoader } from '../../redux/action';
+import CatalogTable from "./Elements/CatalogTable";
+import UpdateForm from "./Elements/UpdateForm";
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 const URL = BASE_URL + '/api/catalog/';
@@ -187,6 +189,14 @@ const nameUpdateValidation = (id, name) => {
 		setCurrentItem ({id : item.id, equipment : item.equipment, quantity : item.quantity, active : item.active})
 	}
 
+// ----------------------------------------------
+// Push Deactivate button (update an ingredient)
+// ----------------------------------------------
+	const pushDeactivateButton = (item) => {
+		console.log('pushDeactivateButton =>', item)
+		updateEquipment ({...item, active: false})
+	}
+
 	// console.log('ingredientsFiltered =>', ingredientsFiltered);
 
 	const handleCloseModal = () => {
@@ -198,6 +208,20 @@ const nameUpdateValidation = (id, name) => {
     setShowModal(true);
   };
 
+	const fieldsList = [
+		{
+			fieldName : 'Equipment',
+			justify : 'start',
+			width : '',
+			fieldNameInList: 'equipment'
+		},
+		{
+			fieldName : 'Quantity',
+			justify : 'end',
+			width : 1,
+			fieldNameInList: 'quantity'
+		}
+	]
 
 	return (
 	<div className='container'>
@@ -221,19 +245,12 @@ const nameUpdateValidation = (id, name) => {
 			<div className='row justify-content-md-center'>
 				<div className=' col-12 col-lg-8 mt-3 p-3' >
 					<div className='scroll_div'>
-						<table className='table '>
-							<thead  className='font-comfortaa'>
-								<tr>
-									<td>Equipment</td>
-									<td>Quantity</td>
-									<td></td>
-									<td></td>
-								</tr>
-							</thead>
-							<tbody className='font-roboto'>
-								{equipmentsFiltered.map((value,i) => <GetEquipment item={value} editButton = {pushEditButton} i={i} updateIngredient = {updateEquipment}/>)}
-							</tbody>
-						</table>
+						<CatalogTable
+							fieldsList = {fieldsList}
+							elementsList = {equipmentsFiltered}
+							pushEditButton = {pushEditButton}
+							pushDeactivateButton = {pushDeactivateButton}
+						/>
 					</div>
 				</div>
 			</div>
@@ -270,27 +287,6 @@ const nameUpdateValidation = (id, name) => {
 }
 
 
-const GetEquipment = (props) => {
-	return(
-		<tr key={props.i}>
-			<td>{props.item.equipment}</td>
-			<td>{props.item.quantity}</td>
-
-			<td className='align-middle text-center ' >
-				<i className="bi bi-pencil" style={{'font-size': '1.3rem', color: "#BD302D"}}
-					onClick={() => props.editButton (props.item)}></i>
-			</td>
-
-			<td className='align-middle text-center ' >
-				<i className="bi bi-x-square" style={{'font-size': '1.3rem', color: "#BD302D"}}
-					onClick={() => props.updateIngredient ({...props.item, active:false}) }></i>
-			</td>
-
-		</tr>
-	)
-}
-
-
 const AddForm = (props) => {
 	const [currentItem, setCurrentItem] = useState({})
 
@@ -323,55 +319,6 @@ const AddForm = (props) => {
 		</>
 	)
 }
-
-const UpdateForm = (props) => {
-	const [currentItem, setCurrentItem] = useState({})
-
-	useEffect (()=>{
-		setCurrentItem({
-			id : props.item.id, 
-			equipment : props.item.equipment, 
-			quantity : props.item.quantity,
-			active : props.item.active
-		})	
-	},[props.item])																								
-
-	return (
-	<>
-		<div  className='row'>
-			<div  className='font-comfortaa'>Edit equipment: {props.item.equipment}</div>
-		</div>
-		<form action="" className='form font-comfortaa'>
-			<div className='row'>
-				<div className='col-7'>
-					<input className='form-control' onChange={(e) => setCurrentItem ({...currentItem, equipment:e.target.value}) }
-									type="text" name='equipment'  value = {currentItem.equipment}/>
-				</div>
-				<div className='col-3'>
-					<input  className='form-control' onChange={(e) => setCurrentItem ({...currentItem, quantity:e.target.value}) }
-									name='quantity' value = {currentItem.quantity} />
-				</div>
-
-				<div className='col-1'>
-					<i className="bi bi-save2" style={{'font-size': '1.3rem', color: "#BD302D"}}
-						onClick={(e) => {
-							e.preventDefault();
-							props.updateEquipment(currentItem);} }></i>
-				</div>
-
-				<div className='col-1'>
-					<i className="bi bi-x-square" style={{'font-size': '1.3rem', color: "#BD302D"}}
-						onClick={(e) => {
-							e.preventDefault();
-							props.cancelUpdate ();}}></i>
-				</div>
-
-			</div>
-		</form>
-	</>
-	)
-}
-
 
 
 	export default Equipment
