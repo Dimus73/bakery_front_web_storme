@@ -13,14 +13,14 @@ const RowOfTable = ({fieldsList, item, editButton, pushDeactivateButton}) => {
             }
 
             <td className='align-middle text-center '>
-                <i className="bi bi-pencil" style={{'font-size': '1.3rem', color: "#BD302D"}}
+                <i className="bi bi-pencil" style={{'fontSize': '1.3rem', color: "#BD302D"}}
                    onClick={() => editButton(item)}>
 
                 </i>
             </td>
 
             <td className='align-middle text-center '>
-                <i className="bi bi-x-square" style={{'font-size': '1.3rem', color: "#BD302D"}}
+                <i className="bi bi-x-square" style={{fontSize: '1.3rem', color: "#BD302D"}}
                    onClick = { () => pushDeactivateButton(item) }>
 
                 </i>
