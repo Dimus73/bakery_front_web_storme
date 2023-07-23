@@ -7,24 +7,52 @@ import { setLoader } from '../../redux/action';
 import CatalogTable from "./Elements/CatalogTable";
 import EquipmentUpdateForm from "./Elements/EquipmentUpdateForm";
 import EquipmentAddForm from "./Elements/EquipmentAddForm";
-import {useList} from "./Hooks/useList";
+import { useList } from "./Hooks/useList";
 import SearchForm from "./Elements/SearchForm";
+import Breadcrumbs from "./UI/breadcrumbs/Breadcrumbs";
+import SearchSection from "./UI/search_section/SearchSection";
+import TableSection from "./UI/folder_section/TableSection";
+import EnterSection from "./UI/enter_section/EnterSection";
+import WhitePageSection from "./UI/white_page_section/WhitePageSection";
+import CatalogEquipmentService from "./API/CatalogEquipmentService";
+import {useFetching} from "./Hooks/useFetching";
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 const URL = BASE_URL + '/api/catalog/';
 const URL_Equipment = 'equipment';
 
 
+
 const Equipment = () =>{
 	const [equipments, setEquipments] =useState([]);
 	const [currentItem, setCurrentItem] = useState({id:'', name:'', quantity:''});
 	const [searchStr, setSearchStr] = useState('');
-	const [showModal, setShowModal] = useState(false);
 	const equipmentsFiltered = useList(equipments, 'equipment', searchStr);
 
 	const user = useSelector (state => state.user)
 
 	const dispatch = useDispatch();
+
+	const [loadEquipment, messageError] = useFetching (async () => {
+		const data = await CatalogEquipmentService.allEquipments(user.token);
+		setEquipments(data);
+	})
+
+	const fieldsList = [
+		{
+			fieldName : 'Equipment',
+			justify : 'start',
+			width : '',
+			fieldNameInList: 'equipment'
+		},
+		{
+			fieldName : 'Quantity',
+			justify : 'end',
+			width : 1,
+			fieldNameInList: 'quantity'
+		}
+]
+
 
 	const getRequest = (URL, toDo) => {
 		const reqData = {
@@ -34,7 +62,7 @@ const Equipment = () =>{
 				'Authorization' : 'Bearer ' + user.token
 			},
 		}
-	
+
 		dispatch (setLoader(true));
 		fetch(URL, reqData)
 		.then(data =>  {
@@ -56,7 +84,12 @@ const Equipment = () =>{
 	}
 
 	useEffect(()=>{
-		getRequest(URL+URL_Equipment, setEquipments);
+		const t = async () => {
+			await loadEquipment()
+		}
+		t();
+		// getRequest(URL+URL_Equipment, setEquipments);
+		// const data = await
 	}, []);
 
 
@@ -195,9 +228,6 @@ const nameUpdateValidation = (id, name) => {
 	const addElement = (item) => {
 		addEquipment(item);
 	}
-	const handleCloseModal = () => {
-    	setShowModal(false);
-	  };
 
 // ----------------------------------------------
 // Push Cancel button in update form an equipment
@@ -208,56 +238,38 @@ const nameUpdateValidation = (id, name) => {
 
 
 
-	const fieldsList = [
-		{
-			fieldName : 'Equipment',
-			justify : 'start',
-			width : '',
-			fieldNameInList: 'equipment'
-		},
-		{
-			fieldName : 'Quantity',
-			justify : 'end',
-			width : 1,
-			fieldNameInList: 'quantity'
-		}
-	]
 
 	return (
-	<div className='container'>
-		<h6 className=''>Catalog | Equipment</h6	>
-		<div className='container bg-white p-5 shadow-lg'>
-			<div className='row font-comfortaa'>
-			<div className='col-lg-2'></div>
-				<div className='col-12 col-lg-4'>
-					<SearchForm searchStr={searchStr} setSearchStr={setSearchStr} />
-				</div>
-			</div>
-			<div className='row justify-content-md-center'>
-				<div className=' col-12 col-lg-8 mt-3 p-3' >
-					<div className='scroll_div'>
-						<CatalogTable
-							fieldsList = {fieldsList}
-							elementsList = {equipmentsFiltered}
-							pushEditButton = {pushEditButton}
-							pushDeactivateButton = {pushDeactivateButton}
-						/>
-					</div>
-				</div>
-			</div>
-		<div>
-		</div >
-			<div className='row justify-content-md-start'>
-			<div className='col-lg-2'></div>
-			<div className='form-box col-12 col-lg-6 mt-3 p-3'>
-					{currentItem.equipment ?
-						<EquipmentUpdateForm currentItem = {currentItem} updateEquipment={updateEquipment} cancelUpdate={cancelUpdate} />
-						:
-						<EquipmentAddForm currentItem = {currentItem} addElement={addElement} />
-					}
-				</div>
-			</div>
-		</div>
+	<div>
+		<Breadcrumbs >
+			Catalog | Equipment
+		</Breadcrumbs>
+		<Breadcrumbs>
+			{messageError}
+		</Breadcrumbs>
+		<WhitePageSection>
+			<SearchSection>
+				<SearchForm
+					searchStr={searchStr}
+					setSearchStr={setSearchStr}
+				/>
+			</SearchSection>
+			<TableSection>
+				<CatalogTable
+					fieldsList = {fieldsList}
+					elementsList = {equipmentsFiltered}
+					pushEditButton = {pushEditButton}
+					pushDeactivateButton = {pushDeactivateButton}
+				/>
+			</TableSection>
+			<EnterSection>
+				{currentItem.equipment ?
+					<EquipmentUpdateForm currentItem = {currentItem} updateEquipment={updateEquipment} cancelUpdate={cancelUpdate} />
+					:
+					<EquipmentAddForm currentItem = {currentItem} addElement={addElement} />
+				}
+			</EnterSection>
+		</WhitePageSection>
 	</div>
 	)
 }
