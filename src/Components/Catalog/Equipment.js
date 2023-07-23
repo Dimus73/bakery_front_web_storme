@@ -5,7 +5,10 @@ import './Ingredients.css';
 import { Button, Modal } from 'react-bootstrap'
 import { setLoader } from '../../redux/action';
 import CatalogTable from "./Elements/CatalogTable";
-import UpdateForm from "./Elements/UpdateForm";
+import EquipmentUpdateForm from "./Elements/EquipmentUpdateForm";
+import EquipmentAddForm from "./Elements/EquipmentAddForm";
+import {useList} from "./Hooks/useList";
+import SearchForm from "./Elements/SearchForm";
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 const URL = BASE_URL + '/api/catalog/';
@@ -14,11 +17,10 @@ const URL_Equipment = 'equipment';
 
 const Equipment = () =>{
 	const [equipments, setEquipments] =useState([]);
-	const [equipmentsFiltered, setEquipmentsFiltered] =useState([]);
 	const [currentItem, setCurrentItem] = useState({id:'', name:'', quantity:''});
 	const [searchStr, setSearchStr] = useState('');
-
 	const [showModal, setShowModal] = useState(false);
+	const equipmentsFiltered = useList(equipments, 'equipment', searchStr);
 
 	const user = useSelector (state => state.user)
 
@@ -53,15 +55,10 @@ const Equipment = () =>{
 		})
 	}
 
-	
 	useEffect(()=>{
 		getRequest(URL+URL_Equipment, setEquipments);
 	}, []);
 
-	useEffect (() =>{
-			setEquipmentsFiltered (equipments.filter((value) => 
-									searchStr ? value.equipment.toLowerCase().indexOf( searchStr.toLowerCase() ) !== -1 : true))
-	}, [equipments, searchStr])	
 
 // ----------------------------------------------
 // Data validation before saving
@@ -106,11 +103,10 @@ const nameUpdateValidation = (id, name) => {
 // ----------------------------------------------
 // Function for adding an equipment
 // ----------------------------------------------
-	const addEquipment = (e) =>{
-		e.preventDefault();
+	const addEquipment = (item) =>{
 
-		const equipment = e.target.elements.equipment.value;
-		const quantity = e.target.elements.quantity.value;
+		const equipment = item.equipment;
+		const quantity = item.quantity;
 		console.log('From Add =>', equipment, quantity);
 //Checking data for validity.
 		if (dataValidation (equipment, quantity) && nameAddValidation (equipment) ) {
@@ -176,37 +172,41 @@ const nameUpdateValidation = (id, name) => {
 		}
 
 	}
+
 // ----------------------------------------------
-// Function for Cancel update an equipment
-// ----------------------------------------------
-	const cancelUpdate = () => {
-		setCurrentItem ({id:'', equipment:'', quantity:0});
-	}
-// ----------------------------------------------
-// Push Edit button (update an ingredient)
+// Push Edit button in list (update an ingredient)
 // ----------------------------------------------
 	const pushEditButton = (item) => {
-		setCurrentItem ({id : item.id, equipment : item.equipment, quantity : item.quantity, active : item.active})
+		console.log('Push Edit button in lis', {...item});
+		setCurrentItem ({...item})
 	}
 
 // ----------------------------------------------
-// Push Deactivate button (update an ingredient)
+// Push Deactivate button in list (update an ingredient)
 // ----------------------------------------------
 	const pushDeactivateButton = (item) => {
 		console.log('pushDeactivateButton =>', item)
 		updateEquipment ({...item, active: false})
 	}
 
-	// console.log('ingredientsFiltered =>', ingredientsFiltered);
-
+// ----------------------------------------------
+// Push ADD button in add form (add new ingredient)
+// ----------------------------------------------
+	const addElement = (item) => {
+		addEquipment(item);
+	}
 	const handleCloseModal = () => {
-    setShowModal(false);
-  };
+    	setShowModal(false);
+	  };
 
-  const handleShowModal = (e) => {
-		e.preventDefault();
-    setShowModal(true);
-  };
+// ----------------------------------------------
+// Push Cancel button in update form an equipment
+// ----------------------------------------------
+	const cancelUpdate = () => {
+		setCurrentItem ({id:'', name:'', quantity:''});
+	}
+
+
 
 	const fieldsList = [
 		{
@@ -230,16 +230,7 @@ const nameUpdateValidation = (id, name) => {
 			<div className='row font-comfortaa'>
 			<div className='col-lg-2'></div>
 				<div className='col-12 col-lg-4'>
-						<form action="">
-							<div className='row'>
-								<div className='col-10'>
-									<input className='form-control' type="text" value={searchStr} onChange={(e) => setSearchStr(e.target.value)} placeholder='Enter to filter'/>
-								</div>
-								<div className='col-1'>
-									<i className="bi bi-x-square" style={{'font-size': '1.8rem', color: "#BD302D"}} onClick={(e) => { e.preventDefault(); setSearchStr('') }}></i>
-								</div>
-							</div>
-						</form>
+					<SearchForm searchStr={searchStr} setSearchStr={setSearchStr} />
 				</div>
 			</div>
 			<div className='row justify-content-md-center'>
@@ -260,65 +251,16 @@ const nameUpdateValidation = (id, name) => {
 			<div className='col-lg-2'></div>
 			<div className='form-box col-12 col-lg-6 mt-3 p-3'>
 					{currentItem.equipment ?
-						<UpdateForm item = {currentItem} updateEquipment={updateEquipment} cancelUpdate={cancelUpdate} />
+						<EquipmentUpdateForm currentItem = {currentItem} updateEquipment={updateEquipment} cancelUpdate={cancelUpdate} />
 						:
-						<AddForm item = {currentItem} addEquipment={addEquipment} />
+						<EquipmentAddForm currentItem = {currentItem} addElement={addElement} />
 					}
 				</div>
 			</div>
 		</div>
-		<Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Модальное окно</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Содержимое модального окна</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Закрыть
-          </Button>
-          <Button variant="primary" onClick={handleCloseModal}>
-            Сохранить изменения
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
 	</div>
 	)
 }
 
 
-const AddForm = (props) => {
-	const [currentItem, setCurrentItem] = useState({})
-
-	useEffect (()=>{
-		setCurrentItem({id:props.item.id, 
-			equipment:props.item.equipment, 
-			quantity:props.item.quantity})	
-	},[props.item])	
-		
-	return (
-		<>
-			<div className='row'>
-				<div>New</div>
-			</div>
-			<form className='font-comfortaa' onSubmit={props.addEquipment} action="">
-				<div className='row justify-content-md-center' >
-					<div className='col-7'>
-						<input className='form-control' onChange={(e) => setCurrentItem ({...currentItem, equipment:e.target.value}) }
-									type="text" name='equipment'  value = {currentItem.equipment} placeholder="Enter equipment"/>
-					</div>
-					<div className='col-3'>
-						<input className='form-control' onChange={(e) => setCurrentItem ({...currentItem, quantity:e.target.value}) }
-									name='quantity' value = {currentItem.quantity} />
-					</div>
-					<div  className='col-1'>
-						<button  className='btn m-1 me-md-2 btn-outline-danger' type='submit'>Add</button>
-					</div>
-				</div>
-			</form>
-		</>
-	)
-}
-
-
-	export default Equipment
+export default Equipment
