@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux"
-import '../../Loader.css'
+import '../../Layout/Loader.css'
 
 const Loader = () => {
 	const loader = useSelector (state => state.loader);

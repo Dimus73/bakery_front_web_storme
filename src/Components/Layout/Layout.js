@@ -1,7 +1,7 @@
 import { Outlet} from 'react-router-dom'
 import TopBar from '../Menu/TopBar'
 import Footer from '../Footer/Footer'
-import Loader from './UI/Loader/Loader'
+import Loader from '../UI/Loader/Loader'
 
 const Layout = () => {
 

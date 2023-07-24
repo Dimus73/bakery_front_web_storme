@@ -17,6 +17,8 @@ export const useFetching = (callBack) => {
         }
     }
 
-    return [result, messageError];
+    const clearMessageError = () => setMessageError('')
+
+    return [result, messageError, clearMessageError];
 }
 
