@@ -2,8 +2,6 @@ import React from 'react';
 import RowOfTable from "./RowOfTable";
 
 const CatalogTable = ({fieldsList, elementsList, pushEditButton, pushDeactivateButton}) => {
-    // console.log('**************************************')
-    // console.log('IngredientsTable =>', fieldsList, equipmentsFiltered)
     return (
         <div>
             <table className='table'>

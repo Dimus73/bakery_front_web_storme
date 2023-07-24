@@ -1,9 +1,6 @@
 import { useState, useEffect} from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { FieldCheck } from '../../Utils/Fieldcheck';
 import './Ingredients.css';
-import { Button, Modal } from 'react-bootstrap'
-import { setLoader } from '../../redux/action';
 import CatalogTable from "./Elements/CatalogTable";
 import EquipmentUpdateForm from "./Elements/EquipmentUpdateForm";
 import EquipmentAddForm from "./Elements/EquipmentAddForm";
@@ -17,11 +14,7 @@ import WhitePageSection from "./UI/white_page_section/WhitePageSection";
 import CatalogEquipmentService from "./API/CatalogEquipmentService";
 import {useFetching} from "./Hooks/useFetching";
 import ModalWindow from "../UI/Modal/ModalWindow";
-
-const BASE_URL = process.env.REACT_APP_BASE_URL;
-const URL = BASE_URL + '/api/catalog/';
-const URL_Equipment = 'equipment';
-
+import CatalogEquipmentValidation from "./Vlidation/CatalogEquipmentValidation";
 
 
 const Equipment = () =>{
@@ -89,54 +82,14 @@ const Equipment = () =>{
 
 
 // ----------------------------------------------
-// Data validation before saving
-// ----------------------------------------------
-	const dataValidation = (name, quantity) => {
-		if (!FieldCheck(name)) {
-			alert ("The field contains an invalid word. Please don't use words: ['SELECT', 'INSERT', 'DELETE', 'UPDATE']")
-		} else if (!name){
-			alert ("The Ingredient field cannot be empty")
-		} else if (!quantity){
-			alert ("The Quantity field cannot be empty")
-		} else {
-			return true;
-		}		
-		return false;
-	}
-
-// ----------------------------------------------
-// Name validation before saving
-// ----------------------------------------------
-	const nameAddValidation = (name) => {
-		if ( equipments.some ((value) => (value.equipment.toLowerCase() === name.toLowerCase())) ){
-			alert ("This ingredient is already in the database. Duplicate ingredients are not allowed.")
-		} else {
-			return true;
-		}		
-		return false;
-	}
-
-// ----------------------------------------------
-// Name validation before update
-// ----------------------------------------------
-	const nameUpdateValidation = (id, name) => {
-		if ( equipments.some ((value) => (value.equipment.toLowerCase() === name.toLowerCase() && value.id !== id)) ){
-			alert ("This ingredient is already in the database. Duplicate ingredients are not allowed.")
-		} else {
-			return true;
-		}		
-		return false;
-	}
-
-// ----------------------------------------------
-// Function for adding an equipment
+// Function for saving an equipment
 // ----------------------------------------------
 	const addEquipment = async (item) =>{
-
 		const equipment = item.equipment;
 		const quantity = item.quantity;
 //Checking data for validity.
-		if (dataValidation (equipment, quantity) && nameAddValidation (equipment) ) {
+		if (CatalogEquipmentValidation.dataValidation (equipment, quantity, setModalMessage)
+			&& CatalogEquipmentValidation.nameAddValidation (equipment, equipments, setModalMessage) ) {
 // Sending data to the server
 			await addNewEquipment ( item, user.token );
 		}
@@ -146,8 +99,8 @@ const Equipment = () =>{
 // Function for updating an equipment
 // ----------------------------------------------
 	const updateEquipment = async (item) => {
-		console.log('Update function =>', item);
-		if ( dataValidation(item.equipment, item.quantity) && nameUpdateValidation(item.id, item.equipment) ){
+		if ( CatalogEquipmentValidation.dataValidation(item.equipment, item.quantity, setModalMessage)
+			&& CatalogEquipmentValidation.nameUpdateValidation(item.id, item.equipment, equipments, setModalMessage) ){
 			await updateOneEquipment (item, user.token);
 		} else {
 			console.log('Not valid. currentItem =>', currentItem);
@@ -159,23 +112,21 @@ const Equipment = () =>{
 // Push Edit button in list (update an ingredient)
 // ----------------------------------------------
 	const pushEditButton = (item) => {
-		console.log('Push Edit button in lis', {...item});
 		setCurrentItem ({...item})
 	}
 
 // ----------------------------------------------
 // Push Deactivate button in list (update an ingredient)
 // ----------------------------------------------
-	const pushDeactivateButton = (item) => {
-		console.log('pushDeactivateButton =>', item)
-		updateEquipment ({...item, active: false})
+	const pushDeactivateButton = async (item) => {
+		await updateEquipment ({...item, active: false})
 	}
 
 // ----------------------------------------------
 // Push ADD button in add form (add new ingredient)
 // ----------------------------------------------
-	const addElement = (item) => {
-		addEquipment(item);
+	const addElement = async (item) => {
+		await addEquipment(item);
 	}
 
 // ----------------------------------------------
@@ -226,9 +177,16 @@ const Equipment = () =>{
 			</TableSection>
 			<EnterSection>
 				{currentItem.equipment ?
-					<EquipmentUpdateForm currentItem = {currentItem} updateEquipment={updateEquipment} cancelUpdate={cancelUpdate} />
+					<EquipmentUpdateForm
+						currentItem = {currentItem}
+						updateEquipment={updateEquipment}
+						cancelUpdate={cancelUpdate}
+					/>
 					:
-					<EquipmentAddForm currentItem = {currentItem} addElement={addElement} />
+					<EquipmentAddForm
+						currentItem = {currentItem}
+						addElement={addElement}
+					/>
 				}
 			</EnterSection>
 		</WhitePageSection>
