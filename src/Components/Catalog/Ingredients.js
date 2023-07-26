@@ -4,6 +4,9 @@ import { FieldCheck } from '../../Utils/Fieldcheck';
 import './Ingredients.css';
 import { Button, Modal } from 'react-bootstrap'
 import { setLoader } from '../../redux/action';
+import TableSection from "./UI/folder_section/TableSection";
+import CatalogTable from "./Elements/CatalogTable";
+import catalogActionButton from "./ButtonAction/CatalogActionButton";
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 const URL = BASE_URL + '/api/catalog/';
@@ -21,6 +24,29 @@ const Ingredients = () =>{
 
 	const user = useSelector (state => state.user);
 	const dispatch = useDispatch();
+
+
+
+	const fieldsList = [
+		{
+			fieldName : 'Name',
+			justify : 'start',
+			width : '',
+			fieldNameInList: 'name'
+		},
+		{
+			fieldName : 'Unit',
+			justify : 'end',
+			width : 1,
+			fieldNameInList: 'unit_name'
+		},
+		{
+			fieldName : 'Short unit',
+			justify : 'end',
+			width : 2,
+			fieldNameInList: 'unit_short_name'
+		},
+	]
 
 	const getRequest = (URL, toDo) => {
 		const reqData = {
@@ -229,27 +255,35 @@ const nameUpdateValidation = (id, name) => {
 					</form>
 				</div>
 			</div>
-			<div className='row justify-content-md-center'>
-				<div className=' col-12 col-lg-8 mt-3 p-3' >
-					<div className='scroll_div'>
-						<table className='table'>
-							<thead className='font-comfortaa'>
-								<tr>
-									<td>Name</td>
-									<td>Unit</td>
-									<td>Short unit</td>
-									<td></td>
-									<td></td>
-								</tr>
-							</thead>
-							<tbody className='font-roboto'>
-								{ingredientsFiltered.map((value,i) => <GetIngredient item={value} editButton = {pushEditButton} i={i} updateIngredient = {updateIngredient}/>)}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		<div>
+			{/*<div className='row justify-content-md-center'>*/}
+			{/*	<div className=' col-12 col-lg-8 mt-3 p-3' >*/}
+			{/*		<div className='scroll_div'>*/}
+			{/*			<table className='table'>*/}
+			{/*				<thead className='font-comfortaa'>*/}
+			{/*					<tr>*/}
+			{/*						<td>Name</td>*/}
+			{/*						<td>Unit</td>*/}
+			{/*						<td>Short unit</td>*/}
+			{/*						<td></td>*/}
+			{/*						<td></td>*/}
+			{/*					</tr>*/}
+			{/*				</thead>*/}
+			{/*				<tbody className='font-roboto'>*/}
+			{/*					{ingredientsFiltered.map((value,i) => <GetIngredient item={value} editButton = {pushEditButton} i={i} updateIngredient = {updateIngredient}/>)}*/}
+			{/*				</tbody>*/}
+			{/*			</table>*/}
+			{/*		</div>*/}
+			{/*	</div>*/}
+			{/*</div>*/}
+			<TableSection>
+				<CatalogTable
+					fieldsList = {fieldsList}
+					elementsList = {ingredientsFiltered}
+					catalogActionButton = {catalogActionButton}
+				/>
+			</TableSection>
+
+			<div>
 		</div >
 			<div className='row justify-content-md-start'>
 				<div className='col-lg-2'></div>

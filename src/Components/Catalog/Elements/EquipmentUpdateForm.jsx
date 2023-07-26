@@ -1,20 +1,20 @@
 import React, {useEffect, useState} from 'react';
 
-function EquipmentUpdateForm({currentItem ,updateEquipment, cancelUpdate} ) {
+function EquipmentUpdateForm({currentItem ,catalogActionButton, cancelUpdate} ) {
     const [item, setItem] = useState({})
 
     useEffect (()=>{
         setItem({...currentItem})
     },[currentItem])
 
-    const localUpdateEquipment = (e) => {
+    const localUpdateEquipment = async (e) => {
         e.preventDefault();
-        updateEquipment (item)
+        await catalogActionButton.pushUpdateButton (item);
     }
 
     const localCanselUpdate = (e) => {
         e.preventDefault();
-        cancelUpdate ();
+        catalogActionButton.pushCancelUpdateButton();
     }
 
     return (

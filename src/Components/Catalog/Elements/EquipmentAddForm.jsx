@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 
-function EquipmentAddForm ({currentItem, addElement}) {
+function EquipmentAddForm ({currentItem, catalogActionButton}) {
 
     const [item, setItem] = useState({})
 
@@ -8,9 +8,9 @@ function EquipmentAddForm ({currentItem, addElement}) {
         setItem({...currentItem})
     },[currentItem])
 
-    const pushAddButton = (e) => {
+    const pushAddButton = async (e) => {
         e.preventDefault();
-        addElement (item);
+        await catalogActionButton.pushAddButton(item);
     }
 
     return (
@@ -18,7 +18,7 @@ function EquipmentAddForm ({currentItem, addElement}) {
             <div className='row'>
                 <div>New</div>
             </div>
-            <form className='font-comfortaa' onSubmit={pushAddButton} action="">
+            <form className='font-comfortaa' onSubmit={ pushAddButton } action="">
                 <div className='row justify-content-md-center' >
                     <div className='col-7'>
                         <input className='form-control' onChange={(e) => setItem ({...item, equipment:e.target.value}) }

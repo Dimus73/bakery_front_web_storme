@@ -14,7 +14,8 @@ import WhitePageSection from "./UI/white_page_section/WhitePageSection";
 import CatalogEquipmentService from "./API/CatalogEquipmentService";
 import {useFetching} from "./Hooks/useFetching";
 import ModalWindow from "../UI/Modal/ModalWindow";
-import CatalogEquipmentValidation from "./Vlidation/CatalogEquipmentValidation";
+import CatalogEquipmentValidation from "./Validation/CatalogEquipmentValidation";
+import CatalogActionButton from "./ButtonAction/CatalogActionButton";
 
 
 const Equipment = () =>{
@@ -27,6 +28,7 @@ const Equipment = () =>{
 	const user = useSelector (state => state.user)
 
 	const dispatch = useDispatch();
+
 
 	const [loadEquipment, loadEquipmentMessageError, loadEquipmentClearMessageError] =
 		useFetching (async () => {
@@ -48,6 +50,14 @@ const Equipment = () =>{
 			setCurrentItem ({id:'', equipment:'', quantity:'', active:false});
 		})
 
+	const catalogActionButton = new CatalogActionButton (
+		setCurrentItem,
+		updateOneEquipment,
+		addEquipment,
+		updateEquipment,
+		setCurrentItem,
+		user.token);
+
 	const fieldsList = [
 		{
 			fieldName : 'Equipment',
@@ -62,7 +72,6 @@ const Equipment = () =>{
 			fieldNameInList: 'quantity'
 		}
 	]
-
 
 	useEffect(()=>{
 		const t = async () => {
@@ -84,13 +93,11 @@ const Equipment = () =>{
 // ----------------------------------------------
 // Function for saving an equipment
 // ----------------------------------------------
-	const addEquipment = async (item) =>{
+	async function  addEquipment (item, token) {
 		const equipment = item.equipment;
 		const quantity = item.quantity;
-//Checking data for validity.
 		if (CatalogEquipmentValidation.dataValidation (equipment, quantity, setModalMessage)
 			&& CatalogEquipmentValidation.nameAddValidation (equipment, equipments, setModalMessage) ) {
-// Sending data to the server
 			await addNewEquipment ( item, user.token );
 		}
 	}
@@ -98,44 +105,15 @@ const Equipment = () =>{
 // ----------------------------------------------
 // Function for updating an equipment
 // ----------------------------------------------
-	const updateEquipment = async (item) => {
+	async function updateEquipment (item, token) {
 		if ( CatalogEquipmentValidation.dataValidation(item.equipment, item.quantity, setModalMessage)
 			&& CatalogEquipmentValidation.nameUpdateValidation(item.id, item.equipment, equipments, setModalMessage) ){
-			await updateOneEquipment (item, user.token);
+			await updateOneEquipment (item, token);
 		} else {
 			console.log('Not valid. currentItem =>', currentItem);
 		}
 
 	}
-
-// ----------------------------------------------
-// Push Edit button in list (update an ingredient)
-// ----------------------------------------------
-	const pushEditButton = (item) => {
-		setCurrentItem ({...item})
-	}
-
-// ----------------------------------------------
-// Push Deactivate button in list (update an ingredient)
-// ----------------------------------------------
-	const pushDeactivateButton = async (item) => {
-		await updateEquipment ({...item, active: false})
-	}
-
-// ----------------------------------------------
-// Push ADD button in add form (add new ingredient)
-// ----------------------------------------------
-	const addElement = async (item) => {
-		await addEquipment(item);
-	}
-
-// ----------------------------------------------
-// Push Cancel button in update form an equipment
-// ----------------------------------------------
-	const cancelUpdate = () => {
-		setCurrentItem ({id:'', name:'', quantity:''});
-	}
-
 
 // ----------------------------------------------
 // Clear alert message after API
@@ -171,21 +149,19 @@ const Equipment = () =>{
 				<CatalogTable
 					fieldsList = {fieldsList}
 					elementsList = {equipmentsFiltered}
-					pushEditButton = {pushEditButton}
-					pushDeactivateButton = {pushDeactivateButton}
+					catalogActionButton = {catalogActionButton}
 				/>
 			</TableSection>
 			<EnterSection>
 				{currentItem.equipment ?
 					<EquipmentUpdateForm
 						currentItem = {currentItem}
-						updateEquipment={updateEquipment}
-						cancelUpdate={cancelUpdate}
+						catalogActionButton={catalogActionButton}
 					/>
 					:
 					<EquipmentAddForm
 						currentItem = {currentItem}
-						addElement={addElement}
+						catalogActionButton={catalogActionButton}
 					/>
 				}
 			</EnterSection>
@@ -193,6 +169,5 @@ const Equipment = () =>{
 	</div>
 	)
 }
-
 
 export default Equipment

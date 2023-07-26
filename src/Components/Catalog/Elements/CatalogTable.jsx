@@ -1,7 +1,8 @@
 import React from 'react';
 import RowOfTable from "./RowOfTable";
+import CatalogActionButton from "../ButtonAction/CatalogActionButton";
 
-const CatalogTable = ({fieldsList, elementsList, pushEditButton, pushDeactivateButton}) => {
+const CatalogTable = ({fieldsList, elementsList, catalogActionButton}) => {
     return (
         <div>
             <table className='table'>
@@ -24,8 +25,7 @@ const CatalogTable = ({fieldsList, elementsList, pushEditButton, pushDeactivateB
                         <RowOfTable
                             key={i} item={item}
                             fieldsList={fieldsList}
-                            editButton = {pushEditButton}
-                            pushDeactivateButton = {pushDeactivateButton}
+                            catalogActionButton = {catalogActionButton}
                         />
                     )}
                 </tbody>
