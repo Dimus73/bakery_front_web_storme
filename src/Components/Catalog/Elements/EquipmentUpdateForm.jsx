@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 
-function EquipmentUpdateForm({currentItem ,catalogActionButton, cancelUpdate} ) {
+function EquipmentUpdateForm( {currentItem ,catalogActionButton} ) {
     const [item, setItem] = useState({})
 
     useEffect (()=>{

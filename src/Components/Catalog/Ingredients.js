@@ -7,6 +7,13 @@ import { setLoader } from '../../redux/action';
 import TableSection from "./UI/folder_section/TableSection";
 import CatalogTable from "./Elements/CatalogTable";
 import catalogActionButton from "./ButtonAction/CatalogActionButton";
+import SearchSection from "./UI/search_section/SearchSection";
+import SearchForm from "./Elements/SearchForm";
+import EnterSection from "./UI/enter_section/EnterSection";
+import EquipmentUpdateForm from "./Elements/EquipmentUpdateForm";
+import EquipmentAddForm from "./Elements/EquipmentAddForm";
+import Breadcrumbs from "./UI/breadcrumbs/Breadcrumbs";
+import WhitePageSection from "./UI/white_page_section/WhitePageSection";
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 const URL = BASE_URL + '/api/catalog/';
@@ -237,44 +244,17 @@ const nameUpdateValidation = (id, name) => {
 
 
 	return (
-	<div className='container'>
-		<h6 className=''>Catalog | Ingredients</h6	>
-		<div className='container bg-white p-5 shadow-lg'>
-			<div className='row font-comfortaa'>
-				<div className='col-lg-2'></div>
-				<div className='col-12 col-lg-4'>
-					<form action="">
-						<div className='row align-items-center'>
-							<div className='col-10'>
-								<input className='form-control' type="text" value={searchStr} onChange={(e) => setSearchStr(e.target.value)} placeholder='Enter to filter'/>
-							</div>
-							<div className='col-1'>
-								<i className="bi bi-x-square" style={{'font-size': '1.8rem', color: "#BD302D"}} onClick={(e) => { setSearchStr('') } }></i>
-							</div>
-						</div>
-					</form>
-				</div>
-			</div>
-			{/*<div className='row justify-content-md-center'>*/}
-			{/*	<div className=' col-12 col-lg-8 mt-3 p-3' >*/}
-			{/*		<div className='scroll_div'>*/}
-			{/*			<table className='table'>*/}
-			{/*				<thead className='font-comfortaa'>*/}
-			{/*					<tr>*/}
-			{/*						<td>Name</td>*/}
-			{/*						<td>Unit</td>*/}
-			{/*						<td>Short unit</td>*/}
-			{/*						<td></td>*/}
-			{/*						<td></td>*/}
-			{/*					</tr>*/}
-			{/*				</thead>*/}
-			{/*				<tbody className='font-roboto'>*/}
-			{/*					{ingredientsFiltered.map((value,i) => <GetIngredient item={value} editButton = {pushEditButton} i={i} updateIngredient = {updateIngredient}/>)}*/}
-			{/*				</tbody>*/}
-			{/*			</table>*/}
-			{/*		</div>*/}
-			{/*	</div>*/}
-			{/*</div>*/}
+	<div>
+		<Breadcrumbs >
+			Catalog | Equipment
+		</Breadcrumbs>
+		<WhitePageSection>
+			<SearchSection>
+				<SearchForm
+					searchStr={searchStr}
+					setSearchStr={setSearchStr}
+				/>
+			</SearchSection>
 			<TableSection>
 				<CatalogTable
 					fieldsList = {fieldsList}
@@ -282,152 +262,22 @@ const nameUpdateValidation = (id, name) => {
 					catalogActionButton = {catalogActionButton}
 				/>
 			</TableSection>
-
-			<div>
-		</div >
-			<div className='row justify-content-md-start'>
-				<div className='col-lg-2'></div>
-				<div className='form-box col-12 col-lg-6 mt-3 p-3'>
-					{currentItem.name ?
-						<UpdateForm item = {currentItem} units={units} updateIngredient={updateIngredient} cancelUpdate={cancelUpdate} />
-						:
-						<AddForm item = {currentItem} addIngredients={addIngredients} units={units} />
-					}
-				</div>
-			</div>
-		</div>
-		<Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Модальное окно</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Содержимое модального окна</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Закрыть
-          </Button>
-          <Button variant="primary" onClick={handleCloseModal}>
-            Сохранить изменения
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
+			<EnterSection>
+				{currentItem.equipment ?
+					<EquipmentUpdateForm
+						currentItem = {currentItem}
+						catalogActionButton={catalogActionButton}
+					/>
+					:
+					<EquipmentAddForm
+						currentItem = {currentItem}
+						catalogActionButton={catalogActionButton}
+					/>
+				}
+			</EnterSection>
+		</WhitePageSection>
 	</div>
 	)
 }
 
-
-const GetIngredient = (props) => {
-	return(
-		<tr key={props.i}>
-			<td>{props.item.name}</td>
-			<td>{props.item.unit_name}</td>
-			<td>{props.item.unit_short_name}</td>
-
-			<td className='align-middle text-center ' >
-				<i className="bi bi-pencil" style={{'font-size': '1.3rem', color: "#BD302D"}}
-					onClick={() => props.editButton (props.item)}></i>
-			</td>
-
-			<td className='align-middle text-center ' >
-				<i className="bi bi-x-square" style={{'font-size': '1.3rem', color: "#BD302D"}}
-					onClick={() => props.updateIngredient ({...props.item, active:false}) }></i>
-			</td>
-
-		</tr>
-	)
-}
-
-
-const AddForm = (props) => {
-	const [currentItem, setCurrentItem] = useState({})
-
-	useEffect (()=>{
-		setCurrentItem({id:props.item.id, 
-			name:props.item.name, 
-			unit_id:props.item.unit_id})	
-	},[props.item])	
-		
-	return (
-		<>
-			<div className='row'>
-				<div className='font-comfortaa'>New</div>
-			</div>
-			<form className='font-comfortaa' onSubmit={props.addIngredients} action="">
-				<div className='row justify-content-md-center'>
-					<div className='col-7'>
-						<input className='form-control' onChange={(e) => setCurrentItem ({...currentItem, name:e.target.value}) }
-									type="text" name='iName'  value = {currentItem.name} placeholder="Enter ingredient"/>
-					</div>
-					<div className='col-3'>
-						<select className='form-select' onChange={(e) => setCurrentItem ({...currentItem, unit_id:e.target.value}) }
-									name='iUnit' value = {currentItem.unit_id} >
-							{props.units.map ((item) =>
-								<option key={item.id} value={item.id}>{item.unit_name}</option>
-							)}
-						</select>
-					</div>
-					<div className='col-1'>
-						<button id='btn1'  className='btn m-1 me-md-2 btn-outline-danger' type='submit'>Add</button>
-					</div>
-				</div>
-			</form>
-		</>
-	)
-}
-
-const UpdateForm = (props) => {
-	const [currentItem, setCurrentItem] = useState({})
-
-	useEffect (()=>{
-		setCurrentItem({
-			id : props.item.id, 
-			name : props.item.name, 
-			unit_id : props.item.unit_id,
-			active : props.item.active
-		})	
-	},[props.item])																								
-
-	return (
-	<>
-		<div className='row'>
-			<div  className='font-comfortaa'>Edit ingredient: {props.item.name}</div>
-		</div>
-		<form action="" className='form font-comfortaa'>
-			<div className='row'>
-				<div className='col-7'>
-					<input  className='form-control' onChange={(e) => setCurrentItem ({...currentItem, name:e.target.value}) }
-									type="text" name='iName'  value = {currentItem.name}/>
-				</div>
-				<div className='col-3'>
-					<select className='form-select' onChange={(e) => setCurrentItem ({...currentItem, unit_id:e.target.value}) }
-									name='iUnit' value = {currentItem.unit_id} >
-						{props.units.map ((item) =>
-							<option key={item.id} value={item.id}>{item.unit_name}</option>
-						)}
-					</select>
-				</div>
-
-				<div className='col-1'>
-					<i className="bi bi-save2" style={{'font-size': '1.3rem', color: "#BD302D"}}
-						onClick={(e) => {
-							e.preventDefault();
-							props.updateIngredient(currentItem);} }></i>
-				</div>
-
-				<div className='col-1'>
-					<i className="bi bi-x-square" style={{'font-size': '1.3rem', color: "#BD302D"}}
-						onClick={(e) => {
-							e.preventDefault();
-							props.cancelUpdate ();}}></i>
-				</div>
-
-			</div>
-		</form>
-	</>
-	)
-}
-
-
-	// {/* If the editing mode is then use the "Update" and "Stop" buttons, if the adding mode is the "Add" button */}
-
-	export default Ingredients
+export default Ingredients

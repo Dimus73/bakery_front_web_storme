@@ -14,7 +14,7 @@ function EquipmentAddForm ({currentItem, catalogActionButton}) {
     }
 
     return (
-        <>
+        <div>
             <div className='row'>
                 <div>New</div>
             </div>
@@ -33,7 +33,7 @@ function EquipmentAddForm ({currentItem, catalogActionButton}) {
                     </div>
                 </div>
             </form>
-        </>
+        </div>
     )
 }
 
