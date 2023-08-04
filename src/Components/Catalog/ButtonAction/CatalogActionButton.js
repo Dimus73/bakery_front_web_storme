@@ -13,7 +13,7 @@ export default class CatalogActionButton {
 // ----------------------------------------------
 // Push Edit button in list (update an ingredient)
 // ----------------------------------------------
-    pushEditButton ( item ) {
+    pushEditButton = ( item ) => {
         console.log("pushEditButton =>",item )
         this.editActionButton ({...item})
     }
@@ -21,28 +21,28 @@ export default class CatalogActionButton {
 // ----------------------------------------------
 // Push Deactivate button in list (update an ingredient)
 // ----------------------------------------------
-    async pushDeactivateButton (item, actionFunction) {
+    pushDeactivateButton = async (item, actionFunction) => {
         await this.deactivateActionButton ({...item, active: false}, this.token);
     }
 
 // ----------------------------------------------
 // Push ADD button in add form (add new ingredient)
 // ----------------------------------------------
-    async pushAddButton (item, actionFunction) {
+    pushAddButton = async (item, actionFunction) => {
         await this.addActionButton(item, this.token);
     }
 
 // ----------------------------------------------
 // Push UPDATE button in update form (update an ingredient)
 // ----------------------------------------------
-    async pushUpdateButton (item, actionFunction) {
+    pushUpdateButton = async (item, actionFunction) => {
         await this.updateActionButton(item, this.token);
     }
 
     // ----------------------------------------------
 // Push Cancel button in update form an equipment
 // ----------------------------------------------
-    pushCancelUpdateButton () {
+    pushCancelUpdateButton = () => {
         this.canselUpdateActionButton ({id:'', name:'', quantity:''});
     }
 

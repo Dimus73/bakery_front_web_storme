@@ -9,7 +9,7 @@ import SearchForm from "./Elements/SearchForm";
 import EnterSection from "./UI/enter_section/EnterSection";
 import IngredientUpdateForm from "./Elements/IngredientUpdateForm";
 import IngredientAddForm from "./Elements/IngredientAddForm";
-import Breadcrumbs from "./UI/breadcrumbs/Breadcrumbs";
+import Breadcrumbs from "../UI/breadcrumbs/Breadcrumbs";
 import WhitePageSection from "./UI/white_page_section/WhitePageSection";
 import CatalogActionButton from "./ButtonAction/CatalogActionButton";
 import ModalWindow from "../UI/Modal/ModalWindow";
@@ -17,6 +17,9 @@ import {useFetching} from "./Hooks/useFetching";
 import CatalogIngredientsService from "./API/CatalogIngredientService";
 import {useList} from "./Hooks/useList";
 import CatalogIngredientValidation from "./Validation/catalogIngredientValidation";
+import {tableFieldType} from "../UI/Table/tableFieldType";
+import {tableActionType} from "../UI/Table/tableActionsType";
+import BaseTable from "../UI/Table/BaseTable";
 
 const Ingredients = () =>{
 	const [ingredients, setIngredients] =useState([]);
@@ -45,6 +48,7 @@ const Ingredients = () =>{
 		useFetching (async (item, token) => {
 			const response = await CatalogIngredientsService.addIngredient(  item, token );
 			setIngredients( response );
+			console.log('*********************',currentItem);
 			setCurrentItem ({id:'', name:'', unit_id:1});
 		})
 
@@ -66,23 +70,41 @@ const Ingredients = () =>{
 
 	const fieldsList = [
 		{
+			fieldType: tableFieldType.TEXT_FIELD,
 			fieldName : 'Name',
 			justify : 'start',
 			width : '',
 			fieldNameInList: 'name'
 		},
 		{
+			fieldType: tableFieldType.TEXT_FIELD,
 			fieldName : 'Unit',
 			justify : 'end',
 			width : 1,
 			fieldNameInList: 'unit_name'
 		},
 		{
+			fieldType: tableFieldType.TEXT_FIELD,
 			fieldName : 'Short unit',
 			justify : 'end',
 			width : 2,
 			fieldNameInList: 'unit_short_name'
 		},
+		{
+			fieldType: tableFieldType.ACTION_FIELD,
+			actionType: tableActionType.EDIT,
+			justify: 'end',
+			width: 1,
+			action: catalogActionButton.pushEditButton,
+		},
+		{
+			fieldType: tableFieldType.ACTION_FIELD,
+			actionType: tableActionType.REMOVE,
+			justify: 'end',
+			width: 1,
+			action: catalogActionButton.pushDeactivateButton,
+		},
+
 	]
 
 
@@ -166,7 +188,12 @@ const Ingredients = () =>{
 				/>
 			</SearchSection>
 			<TableSection>
-				<CatalogTable
+				{/*<CatalogTable*/}
+				{/*	fieldsList = {fieldsList}*/}
+				{/*	elementsList = {ingredientsFiltered}*/}
+				{/*	catalogActionButton = {catalogActionButton}*/}
+				{/*/>*/}
+				<BaseTable
 					fieldsList = {fieldsList}
 					elementsList = {ingredientsFiltered}
 					catalogActionButton = {catalogActionButton}

@@ -6,7 +6,7 @@ import EquipmentUpdateForm from "./Elements/EquipmentUpdateForm";
 import EquipmentAddForm from "./Elements/EquipmentAddForm";
 import { useList } from "./Hooks/useList";
 import SearchForm from "./Elements/SearchForm";
-import Breadcrumbs from "./UI/breadcrumbs/Breadcrumbs";
+import Breadcrumbs from "../UI/breadcrumbs/Breadcrumbs";
 import SearchSection from "./UI/search_section/SearchSection";
 import TableSection from "./UI/folder_section/TableSection";
 import EnterSection from "./UI/enter_section/EnterSection";
@@ -16,6 +16,9 @@ import {useFetching} from "./Hooks/useFetching";
 import ModalWindow from "../UI/Modal/ModalWindow";
 import CatalogEquipmentValidation from "./Validation/catalogEquipmentValidation";
 import CatalogActionButton from "./ButtonAction/CatalogActionButton";
+import {tableFieldType} from "../UI/Table/tableFieldType";
+import {tableActionType} from "../UI/Table/tableActionsType";
+import BaseTable from "../UI/Table/BaseTable";
 
 
 const Equipment = () =>{
@@ -60,17 +63,33 @@ const Equipment = () =>{
 
 	const fieldsList = [
 		{
+			fieldType: tableFieldType.TEXT_FIELD,
 			fieldName : 'Equipment',
 			justify : 'start',
 			width : '',
 			fieldNameInList: 'equipment'
 		},
 		{
+			fieldType: tableFieldType.TEXT_FIELD,
 			fieldName : 'Quantity',
 			justify : 'end',
 			width : 1,
 			fieldNameInList: 'quantity'
-		}
+		},
+		{
+			fieldType: tableFieldType.ACTION_FIELD,
+			actionType: tableActionType.EDIT,
+			justify: 'end',
+			width: 1,
+			action: catalogActionButton.pushEditButton,
+		},
+		{
+			fieldType: tableFieldType.ACTION_FIELD,
+			actionType: tableActionType.REMOVE,
+			justify: 'end',
+			width: 1,
+			action: catalogActionButton.pushDeactivateButton,
+		},
 	]
 
 	useEffect(()=>{
@@ -146,7 +165,12 @@ const Equipment = () =>{
 				/>
 			</SearchSection>
 			<TableSection>
-				<CatalogTable
+				{/*<CatalogTable*/}
+				{/*	fieldsList = {fieldsList}*/}
+				{/*	elementsList = {equipmentsFiltered}*/}
+				{/*	catalogActionButton = {catalogActionButton}*/}
+				{/*/>*/}
+				<BaseTable
 					fieldsList = {fieldsList}
 					elementsList = {equipmentsFiltered}
 					catalogActionButton = {catalogActionButton}

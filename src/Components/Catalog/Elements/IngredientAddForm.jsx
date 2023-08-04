@@ -4,13 +4,11 @@ const IngredientAddForm = ( {currentItem, units, catalogActionButton} ) => {
     const [item, setItem] = useState({})
 
     useEffect (()=>{
-        setItem({id:item.id,
-            name:item.name,
-            unit_id:item.unit_id})
+        setItem({...currentItem})
     },[currentItem])
 
     const pushAddButton = async (e) => {
-        console.log("****ttttt*****")
+        // console.log("****ttttt*****")
         e.preventDefault();
         await catalogActionButton.pushAddButton(item);
     }

@@ -5,6 +5,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { emptyRecipe } from '../Recipe/EmptyRecipe';
 import  ResourcesUsed  from './ResourcesUsed';
 import './CreateTask.css';
+import breadcrumbs from "../UI/breadcrumbs/Breadcrumbs";
+import Breadcrumbs from "../UI/breadcrumbs/Breadcrumbs";
+import {tableActionType} from "../UI/Table/tableActionsType";
+import {tableFieldType} from "../UI/Table/tableFieldType";
+import BaseTable from "../UI/Table/BaseTable";
 
 
 const emptyTask = {
@@ -281,19 +286,76 @@ const CreateTask = () => {
 		setTask({...task}); 
 	}
 
+	const fieldsList = [
+		{
+			fieldType: tableFieldType.TEXT_FIELD,
+			fieldName : 'No',
+			justify : 'center',
+			width : 1,
+			fieldNameInList: 'i'
+		},
+		{
+			fieldType: tableFieldType.SELECT_FIELD,
+			fieldName : 'recipe',
+			justify : 'start',
+			width : 4,
+			fieldNameInList: 'recipeId',
+			selectItemList: recipeList,
+			action: choseRecipe,
+		},
+		{
+			fieldType: tableFieldType.TEXT_FIELD,
+			fieldName : 'quan.',
+			justify : 'center',
+			width : 2,
+			fieldNameInList: 'quantityInRecipe'
+		},
+		{
+			fieldType: tableFieldType.TEXT_FIELD,
+			fieldName : 'unit',
+			justify : 'center',
+			width : 1,
+			fieldNameInList: 'unit_name'
+		},
+		{
+			fieldType: tableFieldType.ENTER_FIELD,
+			fieldName : 'repeat',
+			justify : 'center',
+			width : '2',
+			fieldNameInList: 'quantity',
+			action: changeQuantity,
+		},
+		{
+			fieldType: tableFieldType.TEXT_FIELD,
+			fieldName : 'total',
+			justify : 'center',
+			width : 2,
+			fieldNameInList: 'totalQuantity',
+		},
+		{
+			fieldType: tableFieldType.ACTION_FIELD,
+			actionType : tableActionType.REMOVE,
+			action : removeRecipe,
+		}
+	]
 
-	// console.log('Before return', user, task);
 
 	return (
 		<div className="container">
-			<div className='row'>
-				{editMode === EDIT_MODE.CREATE ? <h6>CREATE daily task</h6>
+			{editMode === EDIT_MODE.CREATE ?
+				<Breadcrumbs>
+					CREATE daily task
+				</Breadcrumbs>
 				:
-				editMode === EDIT_MODE.EDIT ? <h6>EDIT daily task</h6>
-				:
-				<h1>VIEW daily task</h1>
-				}
-			</div>
+				editMode === EDIT_MODE.EDIT ?
+					<Breadcrumbs>
+						EDIT daily task
+					</Breadcrumbs>
+					:
+					<Breadcrumbs>
+						VIEW daily task
+					</Breadcrumbs>
+			}
 			<div className='row'>
 				<div className='col-12 col-lg-6  font-comfortaa'>
 					<div className='container  bg-white p-5 pb-3 pt-3 shadow-lg'>
@@ -308,23 +370,25 @@ const CreateTask = () => {
 						</div>
 						<div className='scroll_div pt-3 overflow-on'>
 							<div>
-								<table className='table table-hover'>
-									<thead>
-										<tr>
-											<th className='col-1 text-center'>No</th>
-											<th className='col-4'>recipe</th>
-											<th className='col-2 text-center'>quan.</th>
-											<th className='col-1 text-center'>unit</th>
-											<th className='col-2 text-end'>repeat</th>
-											<th className='col-2 text-end'>total</th>
-											<th className='col-2'></th>
-										</tr>
-									</thead>
-									<tbody>
-											{task.taskList.map ((value,i) => <TaskRow item={value} recipeList={recipeList} i={i} choseRecipe={choseRecipe} changeQuantity={changeQuantity} removeRecipe={removeRecipe} />) }
-									</tbody>
-								</table>
+								{/*<table className='table table-hover'>*/}
+								{/*	<thead>*/}
+								{/*		<tr>*/}
+								{/*			<th className='col-1 text-center'>No</th>*/}
+								{/*			<th className='col-4'>recipe</th>*/}
+								{/*			<th className='col-2 text-center'>quan.</th>*/}
+								{/*			<th className='col-1 text-center'>unit</th>*/}
+								{/*			<th className='col-2 text-end'>repeat</th>*/}
+								{/*			<th className='col-2 text-end'>total</th>*/}
+								{/*			<th className='col-2'></th>*/}
+								{/*		</tr>*/}
+								{/*	</thead>*/}
+								{/*	<tbody>*/}
+								{/*			{task.taskList.map ((value,i) => <TaskRow item={value} recipeList={recipeList} i={i} choseRecipe={choseRecipe} changeQuantity={changeQuantity} removeRecipe={removeRecipe} />) }*/}
+								{/*	</tbody>*/}
+								{/*</table>*/}
+								<BaseTable fieldsList={fieldsList} elementsList={task.taskList} />
 							</div>
+
 						</div>
 						<div className='text-end'>
 							{editMode === EDIT_MODE.CREATE ? <button className='btn btn-outline-danger m-3' onClick={ () => saveNewTask (EDIT_MODE.CREATE) } >Save</button>
