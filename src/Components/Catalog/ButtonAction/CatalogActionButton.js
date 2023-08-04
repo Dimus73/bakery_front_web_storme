@@ -14,6 +14,7 @@ export default class CatalogActionButton {
 // Push Edit button in list (update an ingredient)
 // ----------------------------------------------
     pushEditButton ( item ) {
+        console.log("pushEditButton =>",item )
         this.editActionButton ({...item})
     }
 

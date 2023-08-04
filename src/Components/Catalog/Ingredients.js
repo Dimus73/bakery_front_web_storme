@@ -2,37 +2,67 @@ import { useState, useEffect} from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { FieldCheck } from '../../Utils/Fieldcheck';
 import './Ingredients.css';
-import { Button, Modal } from 'react-bootstrap'
-import { setLoader } from '../../redux/action';
 import TableSection from "./UI/folder_section/TableSection";
 import CatalogTable from "./Elements/CatalogTable";
-import catalogActionButton from "./ButtonAction/CatalogActionButton";
 import SearchSection from "./UI/search_section/SearchSection";
 import SearchForm from "./Elements/SearchForm";
 import EnterSection from "./UI/enter_section/EnterSection";
-import EquipmentUpdateForm from "./Elements/EquipmentUpdateForm";
-import EquipmentAddForm from "./Elements/EquipmentAddForm";
+import IngredientUpdateForm from "./Elements/IngredientUpdateForm";
+import IngredientAddForm from "./Elements/IngredientAddForm";
 import Breadcrumbs from "./UI/breadcrumbs/Breadcrumbs";
 import WhitePageSection from "./UI/white_page_section/WhitePageSection";
-
-const BASE_URL = process.env.REACT_APP_BASE_URL;
-const URL = BASE_URL + '/api/catalog/';
-const URL_Ingredients = 'ingredients';
-const URL_Units = 'units';
+import CatalogActionButton from "./ButtonAction/CatalogActionButton";
+import ModalWindow from "../UI/Modal/ModalWindow";
+import {useFetching} from "./Hooks/useFetching";
+import CatalogIngredientsService from "./API/CatalogIngredientService";
+import {useList} from "./Hooks/useList";
+import CatalogIngredientValidation from "./Validation/catalogIngredientValidation";
 
 const Ingredients = () =>{
 	const [ingredients, setIngredients] =useState([]);
-	const [ingredientsFiltered, setIngredientsFiltered] =useState([]);
+	const [searchStr, setSearchStr] = useState('');
+	const ingredientsFiltered= useList(ingredients, 'name', searchStr);
 	const [units, setUnits] =useState([]);
 	const [currentItem, setCurrentItem] = useState({id:'', name:'', unit_id:1});
-	const [searchStr, setSearchStr] = useState('');
-
-	const [showModal, setShowModal] = useState(false);
+	const [modalMessage, setModalMessage] = useState('false')
 
 	const user = useSelector (state => state.user);
 	const dispatch = useDispatch();
 
+	const [loadIngredient, loadIngredientMessageError, loadIngredientClearMessageError] =
+		useFetching (async () => {
+			const data = await CatalogIngredientsService.allIngredient(user.token);
+			setIngredients(data);
+		})
 
+	const [loadUnit, loadUnitMessageError, loadUnitClearMessageError] =
+		useFetching (async () => {
+			const data = await CatalogIngredientsService.allUnits(user.token);
+			setUnits(data);
+		})
+
+	const [addNewIngredient, addNewIngredientMessageError, addNewIngredientClearMessageError] =
+		useFetching (async (item, token) => {
+			const response = await CatalogIngredientsService.addIngredient(  item, token );
+			setIngredients( response );
+			setCurrentItem ({id:'', name:'', unit_id:1});
+		})
+
+	const [updateOneIngredient, updateOneIngredientMessageError, updateOneIngredientClearMessageError] =
+		useFetching (async (item, token) => {
+			const response = await CatalogIngredientsService.updateIngredient( item, token );
+			setIngredients( response );
+			setCurrentItem ({id:'', name:'', unit_id:1});
+		})
+
+
+	const catalogActionButton = new CatalogActionButton (
+		setCurrentItem,
+		updateIngredient,
+		addIngredients,
+		updateIngredient,
+		setCurrentItem,
+		user.token);
 
 	const fieldsList = [
 		{
@@ -55,196 +85,76 @@ const Ingredients = () =>{
 		},
 	]
 
-	const getRequest = (URL, toDo) => {
-		const reqData = {
-			method: "GET",
-			headers:{
-				'Content-type' : 'application/json',
-				'Authorization' : 'Bearer ' + user.token
-			},
-		}
-		
-		dispatch ( setLoader( true ) );
-		fetch(URL, reqData)
-		.then(data =>  {
-			dispatch ( setLoader( false ) );
-			// console.log('From Get:', data);
-			if (!data.ok) {
-				throw new Error (`Error getting data. Status ${data.status}. Message `)
-			}
-			return data.json()
-		})
-		.then(data => {
-			toDo(data)
-		})
-		.catch((err) => {
-			alert ('There was a communication error with the server while reading data. Check server operation and try again.')
-			console.log('getRequest ERROR:', err);
-		})
-	}
 
-	
 	useEffect(()=>{
-		getRequest(URL+URL_Ingredients, setIngredients);
-		getRequest (URL+URL_Units, setUnits )	
+		const t = async () => {
+			await loadIngredient();
+			await loadUnit();
+		}
+		t ();
 	}, []);
 
-	useEffect (() =>{
-			setIngredientsFiltered (ingredients.filter((value) => 
-									searchStr ? value.name.toLowerCase().indexOf( searchStr.toLowerCase() ) !== -1 : true))
-	}, [ingredients, searchStr])	
+	useEffect( () => {
+		setModalMessage(loadIngredientMessageError +
+			loadUnitMessageError +
+			addNewIngredientMessageError +
+			updateOneIngredientMessageError
+		);
+	},
+		[loadIngredientMessageError, loadUnitMessageError, addNewIngredientMessageError, updateOneIngredientMessageError]
+	)
 
-// ----------------------------------------------
-// Data validation before saving
-// ----------------------------------------------
-	const dataValidation = (name, unit_id) => {
-		if (!FieldCheck(name)) {
-			alert ("The field contains an invalid word. Please don't use words: ['SELECT', 'INSERT', 'DELETE', 'UPDATE']")
-		} else if (!name){
-			alert ("The Ingredient field cannot be empty")
-		} else if (unit_id == 1){
-			alert ("Choose a unit of measure")
-		}  else {
-			return true;
-		}		
-		return false;
-	}
 
-// ----------------------------------------------
-// Name validation before saving
-// ----------------------------------------------
-	const nameAddValidation = (name) => {
-		if ( ingredients.some ((value) => (value.name.toLowerCase() == name.toLowerCase())) ){
-			alert ("This ingredient is already in the database. Duplicate ingredients are not allowed.")
-		} else {
-			return true;
-		}		
-		return false;
-	}
-
-// ----------------------------------------------
-// Name validation before update
-// ----------------------------------------------
-const nameUpdateValidation = (id, name) => {
-		if ( ingredients.some ((value) => (value.name.toLowerCase() == name.toLowerCase() && value.id != id)) ){
-			alert ("This ingredient is already in the database. Duplicate ingredients are not allowed.")
-		} else {
-			return true;
-		}		
-		return false;
-	}
 
 // ----------------------------------------------
 // Function for adding an ingredient
 // ----------------------------------------------
-	const addIngredients = (e) =>{
-		e.preventDefault();
-
-		const name = e.target.elements.iName.value;
-		const unit_id = e.target.elements.iUnit.value;
-
-//Checking data for validity.
-		if (dataValidation (name, unit_id) && nameAddValidation (name) ) {
-// Sending data to the server
-			const reqData = {
-				method: "POST",
-				headers:{
-					'Content-type':'application/json',
-					'Authorization' : 'Bearer ' + user.token,
-				},
-				body:JSON.stringify({
-					name,
-					unit_id
-				})
-			}
-
-			setCurrentItem ({id:'', name:'', unit_id:1});
-
-			dispatch ( setLoader (true) );
-			fetch (URL+URL_Ingredients, reqData)
-			.then (data=> data.json())
-			.then (data => {
-				dispatch ( setLoader (false) );
-				setIngredients(data)})
-			.catch(err => {
-				dispatch ( setLoader (false) );
-				alert ('There was a communication error with the server while saving data. Check server operation and try again.')
-				console.log("ERROR when saving data", err)
-			})
+	async function addIngredients (item) {
+		const {name, unit_id} = {...item};
+		if (CatalogIngredientValidation.dataValidation (name, unit_id, setModalMessage)
+			&& CatalogIngredientValidation.nameAddValidation (name, ingredients, setModalMessage) ) {
+			await addNewIngredient ( item, user.token );
 		}
 	}
 
 // ----------------------------------------------
 // Function for updating an ingredient
 // ----------------------------------------------
-	const updateIngredient = (item) => {
-		if ( dataValidation(item.name, item.unit_id) && nameUpdateValidation(item.id, item.name) ){
-			const reqData = {
-				method : 'PUT',
-				headers : {
-					'Content-type':'application/json',
-					'Authorization' : 'Bearer ' + user.token,
-				},
-				body : JSON.stringify ({
-					id : item.id,
-					name : item.name,
-					unit_id : item.unit_id,
-					active : item.active
-				})
-			}
-
-			setCurrentItem ({id:'', name:'', unit_id:1});
-
-			dispatch ( setLoader (true) );
-			fetch (URL+URL_Ingredients, reqData)
-			.then (data => {
-				dispatch ( setLoader(false) );
-				return data.json();
-			})
-			.then (data => setIngredients(data)) 
-			.catch((err) => {
-				dispatch ( setLoader (false) );
-				alert ('There was a communication error with the server while saving data. Check server operation and try again.')
-				console.log('getRequest ERROR:', err);
-			})
-	
+	async function updateIngredient (item) {
+		const {id, name, unit_id} = {...item};
+		if ( CatalogIngredientValidation.dataValidation(name, unit_id, setModalMessage)
+			&& CatalogIngredientValidation.nameUpdateValidation(id, name, ingredients, setModalMessage) ){
+			await updateOneIngredient ( item, user.token );
 		} else {
-			console.log('Not valid. currentItem =>', currentItem);
+			setModalMessage(`Not valid. currentItem => ${currentItem}`);
 		}
-
-	}
-// ----------------------------------------------
-// Function for Cancel update an ingredient
-// ----------------------------------------------
-	const cancelUpdate = () => {
-		setCurrentItem ({id:'', name : '', unit_id : ''})
-	}
-// ----------------------------------------------
-// Push Edit button (update an ingredient)
-// ----------------------------------------------
-	const pushEditButton = (item) => {
-		setCurrentItem ({
-			id:item.id, 
-			name : item.name, 
-			unit_id : item.unit_id,
-			active : item.active
-		})
 	}
 
-	// console.log('ingredientsFiltered =>', ingredientsFiltered);
-
-	const handleCloseModal = () => {
-    setShowModal(false);
-  };
-
-  const handleShowModal = (e) => {
-		e.preventDefault()
-    setShowModal(true);
-  };
+// ----------------------------------------------
+// Clear alert message after API
+// ----------------------------------------------
+	const clearAllMessages = () => {
+		if (loadIngredientMessageError) {
+			loadIngredientClearMessageError();
+		}
+		if (loadUnitMessageError) {
+			loadUnitClearMessageError();
+		}
+		if (addNewIngredientMessageError) {
+			addNewIngredientClearMessageError();
+		}
+		if (updateOneIngredientMessageError){
+			updateOneIngredientClearMessageError();
+		}
+		setModalMessage('');
+	}
 
 
 	return (
 	<div>
+		{modalMessage &&
+			<ModalWindow title={'Error'} body={modalMessage} closeAction={clearAllMessages}/>}
+
 		<Breadcrumbs >
 			Catalog | Equipment
 		</Breadcrumbs>
@@ -263,14 +173,16 @@ const nameUpdateValidation = (id, name) => {
 				/>
 			</TableSection>
 			<EnterSection>
-				{currentItem.equipment ?
-					<EquipmentUpdateForm
+				{currentItem.name ?
+					<IngredientUpdateForm
 						currentItem = {currentItem}
+						units={units}
 						catalogActionButton={catalogActionButton}
 					/>
 					:
-					<EquipmentAddForm
+					<IngredientAddForm
 						currentItem = {currentItem}
+						units={units}
 						catalogActionButton={catalogActionButton}
 					/>
 				}

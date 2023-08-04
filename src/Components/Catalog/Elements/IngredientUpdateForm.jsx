@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 
-function UpdateForm  ( {currentItem, units ,catalogActionButton} ) {
+function IngredientUpdateForm  ( {currentItem, units ,catalogActionButton} ) {
     const [item, setItem] = useState({})
 
     useEffect (()=>{
@@ -29,7 +29,7 @@ function UpdateForm  ( {currentItem, units ,catalogActionButton} ) {
                                 type="text" name='iName'  value = {item.name}/>
                     </div>
                     <div className='col-3'>
-                        <select className='form-select' onChange={(e) => setCurrentItem ({...item, unit_id:e.target.value}) }
+                        <select className='form-select' onChange={(e) => setItem ({...item, unit_id:e.target.value}) }
                                 name='iUnit' value = {item.unit_id} >
                             {units.map ((item) =>
                                 <option key={item.id} value={item.id}>{item.unit_name}</option>
@@ -39,16 +39,12 @@ function UpdateForm  ( {currentItem, units ,catalogActionButton} ) {
 
                     <div className='col-1'>
                         <i className="bi bi-save2" style={{'font-size': '1.3rem', color: "#BD302D"}}
-                           onClick={(e) => {
-                               e.preventDefault();
-                               props.updateIngredient(currentItem);} }></i>
+                           onClick={(e) => localUpdateIngredient(e)  }></i>
                     </div>
 
                     <div className='col-1'>
                         <i className="bi bi-x-square" style={{'font-size': '1.3rem', color: "#BD302D"}}
-                           onClick={(e) => {
-                               e.preventDefault();
-                               props.cancelUpdate ();}}></i>
+                           onClick={(e) => localCanselUpdate(e)}></i>
                     </div>
 
                 </div>
@@ -56,3 +52,5 @@ function UpdateForm  ( {currentItem, units ,catalogActionButton} ) {
         </div>
     )
 }
+
+export default IngredientUpdateForm

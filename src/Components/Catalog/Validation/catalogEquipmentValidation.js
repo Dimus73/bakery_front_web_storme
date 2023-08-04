@@ -1,15 +1,8 @@
+const checkSQLReservWord = require ('./checkSQLReservWord');
 
 export default class CatalogEquipmentValidation {
-    static FieldCheck (data) {
-         const checkWord = ['SELECT', 'INSERT', 'DELETE', 'UPDATE'];
-        if (checkWord.some ((value) => data.toLowerCase().indexOf(value.toLowerCase()) !== -1)){
-            console.log('False');
-            return false;
-        }
-        return true;
-    }
     static dataValidation = (name, quantity, messageAlert) => {
-        if (!CatalogEquipmentValidation.FieldCheck(name)) {
+        if (checkSQLReservWord(name)) {
             messageAlert ("The field contains an invalid word. Please don't use words: ['SELECT', 'INSERT', 'DELETE', 'UPDATE']")
         } else if (!name){
             messageAlert ("The Equipment field cannot be empty")

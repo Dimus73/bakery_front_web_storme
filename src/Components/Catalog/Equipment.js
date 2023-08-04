@@ -14,7 +14,7 @@ import WhitePageSection from "./UI/white_page_section/WhitePageSection";
 import CatalogEquipmentService from "./API/CatalogEquipmentService";
 import {useFetching} from "./Hooks/useFetching";
 import ModalWindow from "../UI/Modal/ModalWindow";
-import CatalogEquipmentValidation from "./Validation/CatalogEquipmentValidation";
+import CatalogEquipmentValidation from "./Validation/catalogEquipmentValidation";
 import CatalogActionButton from "./ButtonAction/CatalogActionButton";
 
 
@@ -93,7 +93,7 @@ const Equipment = () =>{
 // ----------------------------------------------
 // Function for saving an equipment
 // ----------------------------------------------
-	async function  addEquipment (item, token) {
+	async function  addEquipment (item) {
 		const equipment = item.equipment;
 		const quantity = item.quantity;
 		if (CatalogEquipmentValidation.dataValidation (equipment, quantity, setModalMessage)
@@ -108,9 +108,9 @@ const Equipment = () =>{
 	async function updateEquipment (item, token) {
 		if ( CatalogEquipmentValidation.dataValidation(item.equipment, item.quantity, setModalMessage)
 			&& CatalogEquipmentValidation.nameUpdateValidation(item.id, item.equipment, equipments, setModalMessage) ){
-			await updateOneEquipment (item, token);
+			await updateOneEquipment (item, user.token );
 		} else {
-			console.log('Not valid. currentItem =>', currentItem);
+			setModalMessage(`Not valid. currentItem => ${currentItem}`);
 		}
 
 	}

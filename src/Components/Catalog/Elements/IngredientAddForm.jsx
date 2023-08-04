@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 
-const AddForm = ( {currentItem, units, catalogActionButton} ) => {
+const IngredientAddForm = ( {currentItem, units, catalogActionButton} ) => {
     const [item, setItem] = useState({})
 
     useEffect (()=>{
@@ -10,6 +10,7 @@ const AddForm = ( {currentItem, units, catalogActionButton} ) => {
     },[currentItem])
 
     const pushAddButton = async (e) => {
+        console.log("****ttttt*****")
         e.preventDefault();
         await catalogActionButton.pushAddButton(item);
     }
@@ -41,3 +42,5 @@ const AddForm = ( {currentItem, units, catalogActionButton} ) => {
         </div>
     )
 }
+
+export default IngredientAddForm
