@@ -10,12 +10,12 @@ const BaseTable = ({fieldsList, elementsList, catalogActionButton}) => {
                 <thead  className='font-comfortaa'>
                     <tr>
                         { fieldsList.map (value =>
-                            <td
+                            <th
                                 key={value.fieldName}
                                 className={`col-${value.width} text-${value.justify}`}
                             >
                                 {value.fieldName}
-                            </td>)
+                            </th>)
                         }
                     </tr>
                 </thead>

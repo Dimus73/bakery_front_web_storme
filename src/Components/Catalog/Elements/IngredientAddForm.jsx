@@ -8,7 +8,6 @@ const IngredientAddForm = ( {currentItem, units, catalogActionButton} ) => {
     },[currentItem])
 
     const pushAddButton = async (e) => {
-        // console.log("****ttttt*****")
         e.preventDefault();
         await catalogActionButton.pushAddButton(item);
     }

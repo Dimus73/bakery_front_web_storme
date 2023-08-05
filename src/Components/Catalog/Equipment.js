@@ -165,11 +165,6 @@ const Equipment = () =>{
 				/>
 			</SearchSection>
 			<TableSection>
-				{/*<CatalogTable*/}
-				{/*	fieldsList = {fieldsList}*/}
-				{/*	elementsList = {equipmentsFiltered}*/}
-				{/*	catalogActionButton = {catalogActionButton}*/}
-				{/*/>*/}
 				<BaseTable
 					fieldsList = {fieldsList}
 					elementsList = {equipmentsFiltered}

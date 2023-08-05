@@ -3,6 +3,11 @@ import {useDispatch , useSelector } from "react-redux";
 import { setLoader } from "../../redux/action";
 import { useNavigate } from "react-router-dom";
 import { setIngredientsListToMove } from "../../redux/action";
+import {tableFieldType} from "../UI/Table/tableFieldType";
+import BaseTable from "../UI/Table/BaseTable";
+import TableSection from "./UI/TableSection";
+import equipment from "../Catalog/Equipment";
+import MyButton from "../UI/Button/MyButton";
 
 
 const ResourcesUsed = (props) => {
@@ -78,48 +83,97 @@ const ResourcesUsed = (props) => {
 		navigate ('/warehouse/span');
 	}
 
+	const fieldsIngredientsList = [
+		{
+			fieldType: tableFieldType.INDEX_FIELD,
+			fieldName : 'n',
+			justify : 'center',
+			width : 1,
+			fieldNameInList: 'i'
+		},
+		{
+			fieldType: tableFieldType.TEXT_FIELD,
+			fieldName : 'Equipment',
+			justify : 'start',
+			width : 7,
+			fieldNameInList: 'resource'
+		},
+		{
+			fieldType: tableFieldType.TEXT_FIELD,
+			fieldName : 'stock',
+			justify : 'center',
+			width : 1,
+			fieldNameInList: 'quantity_on_stock'
+		},
+		{
+			fieldType: tableFieldType.TEXT_FIELD,
+			fieldName : 'quantity',
+			justify : 'center',
+			width : 2,
+			fieldNameInList: 'quantity'
+		},
+		{
+			fieldType: tableFieldType.TEXT_FIELD,
+			fieldName : 'unit',
+			justify : 'center',
+			width : 2,
+			fieldNameInList: 'unit_name'
+		},
+	]
+
+
+	const fieldsEquipmentList = [
+		{
+			fieldType: tableFieldType.INDEX_FIELD,
+			fieldName : 'n',
+			justify : 'center',
+			width : 1,
+			fieldNameInList: 'i'
+		},
+		{
+			fieldType: tableFieldType.TEXT_FIELD,
+			fieldName : 'Equipment',
+			justify : 'start',
+			width : 7,
+			fieldNameInList: 'resource'
+		},
+		{
+			fieldType: tableFieldType.TEXT_FIELD,
+			fieldName : 'quantity',
+			justify : 'center',
+			width : 2,
+			fieldNameInList: 'quantity'
+		},
+		{
+			fieldType: tableFieldType.TEXT_FIELD,
+			fieldName : 'unit',
+			justify : 'center',
+			width : 2,
+			fieldNameInList: 'unit_name'
+		},
+
+	]
 	return (
 		<div className="container pt-3">
 			<div className="row">
 				<div className="row">
-					<table className="table">
-						<thead>
-							<tr>
-								<th className='col-1 text-center'>n</th>
-								<th className='col-7 text-start'>ingredients</th>
-								<th className='col-2 text-center'>stock</th>
-								<th className='col-2 text-center'>quantity</th>
-								<th className='col-2 text-center'>unit</th>
-							</tr>
-						</thead>
-						<tbody>
-							{resource.ingredients.map ((item, i) => <TableRows item={item} i={i} resource={'I'}/> )}
-						</tbody>
-					</table>
+					<TableSection>
+						<BaseTable fieldsList={fieldsIngredientsList} elementsList={resource.ingredients}/>
+					</TableSection>
 				</div>
 				<div className="row ">
 				  <div className="col text-start">
-						<button className="btn btn-outline-danger" onClick={ callSpanList }>To production</button>
+						<MyButton className="btn btn-outline-danger" onClick={ callSpanList }>To production</MyButton>
 					</div>
 					<div className="col text-end">
-						<button className="btn btn-outline-danger" onClick={ callPushesList }>Purchase</button>
+						<MyButton className="btn btn-outline-danger" onClick={ callPushesList }>Purchase</MyButton>
 					</div>
 				</div>
 
 				<div className="row"> 
-					<table className="table mt-3">
-						<thead>
-							<tr>
-								<th className='col-1 text-center'>n</th>
-								<th className='col-7 text-start'>Equipment</th>
-								<th className='col-2 text-center'>quantity</th>
-								<th className='col-2 text-center'>unit</th>
-							</tr>
-						</thead>
-						<tbody>
-							{resource.equipments.map ((item, i) => <TableRows item={item} i={i}  resource={'E'}/> )}
-						</tbody>
-					</table>
+					<TableSection>
+						<BaseTable fieldsList={fieldsEquipmentList} elementsList={resource.equipments}/>
+					</TableSection>
 				</div>
 
 			</div>

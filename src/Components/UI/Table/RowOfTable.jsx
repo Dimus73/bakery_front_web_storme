@@ -10,6 +10,15 @@ const RowOfTable = ({fieldsList, item, catalogActionButton}) => {
             {fieldsList.map(value => {
                 // console.log('Before switch =>', value);
                 switch (value.fieldType){
+                    case (tableFieldType.INDEX_FIELD):
+                        return (
+                            <td
+                                key={value.fieldName}
+                                className={`col-${value.width} text-${value.justify}`}
+                            >
+                                {item[value.fieldNameInList]+1}
+                            </td>)
+
                     case (tableFieldType.TEXT_FIELD):
                         return (
                             <td

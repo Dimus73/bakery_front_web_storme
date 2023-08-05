@@ -10,6 +10,13 @@ import Breadcrumbs from "../UI/breadcrumbs/Breadcrumbs";
 import {tableActionType} from "../UI/Table/tableActionsType";
 import {tableFieldType} from "../UI/Table/tableFieldType";
 import BaseTable from "../UI/Table/BaseTable";
+import MyButton from "../UI/Button/MyButton";
+import TableSection from "./UI/TableSection";
+import ButtonSection from "./UI/ButtonSection";
+import DateInput from "./DateInput";
+import DateSection from "./UI/DateSection";
+import WhitePageSection from "./UI/WhitePageSection";
+import * as PropTypes from "prop-types";
 
 
 const emptyTask = {
@@ -29,6 +36,7 @@ const EDIT_MODE ={
 	EDIT : 'edit',
 	VIEW : 'view',
 }
+
 
 const CreateTask = () => {
 
@@ -288,7 +296,7 @@ const CreateTask = () => {
 
 	const fieldsList = [
 		{
-			fieldType: tableFieldType.TEXT_FIELD,
+			fieldType: tableFieldType.INDEX_FIELD,
 			fieldName : 'No',
 			justify : 'center',
 			width : 1,
@@ -357,91 +365,35 @@ const CreateTask = () => {
 					</Breadcrumbs>
 			}
 			<div className='row'>
-				<div className='col-12 col-lg-6  font-comfortaa'>
-					<div className='container  bg-white p-5 pb-3 pt-3 shadow-lg'>
-						<div className='row text-start mt-3'>
-							<div className='col'>
-								<label class="form-label" htmlFor="taskDate">Date</label>
-							</div>
-							<div  className='col'>
-								<input className='datepicker form-control' type="date" name='taskDate' value={task.date}
-									onChange={(e)=> setTask({...task, date:e.target.value})}/>
-							</div>
-						</div>
-						<div className='scroll_div pt-3 overflow-on'>
-							<div>
-								{/*<table className='table table-hover'>*/}
-								{/*	<thead>*/}
-								{/*		<tr>*/}
-								{/*			<th className='col-1 text-center'>No</th>*/}
-								{/*			<th className='col-4'>recipe</th>*/}
-								{/*			<th className='col-2 text-center'>quan.</th>*/}
-								{/*			<th className='col-1 text-center'>unit</th>*/}
-								{/*			<th className='col-2 text-end'>repeat</th>*/}
-								{/*			<th className='col-2 text-end'>total</th>*/}
-								{/*			<th className='col-2'></th>*/}
-								{/*		</tr>*/}
-								{/*	</thead>*/}
-								{/*	<tbody>*/}
-								{/*			{task.taskList.map ((value,i) => <TaskRow item={value} recipeList={recipeList} i={i} choseRecipe={choseRecipe} changeQuantity={changeQuantity} removeRecipe={removeRecipe} />) }*/}
-								{/*	</tbody>*/}
-								{/*</table>*/}
-								<BaseTable fieldsList={fieldsList} elementsList={task.taskList} />
-							</div>
-
-						</div>
-						<div className='text-end'>
-							{editMode === EDIT_MODE.CREATE ? <button className='btn btn-outline-danger m-3' onClick={ () => saveNewTask (EDIT_MODE.CREATE) } >Save</button>
+				<WhitePageSection>
+					<DateSection>
+						<DateInput task={task} setTask={setTask}  />
+					</DateSection>
+					<TableSection>
+						<BaseTable fieldsList={fieldsList} elementsList={task.taskList} />
+					</TableSection>
+					<ButtonSection className='text-end'>
+						{editMode === EDIT_MODE.CREATE ?
+							<MyButton className='btn btn-outline-danger m-3' onClick={ () => saveNewTask (EDIT_MODE.CREATE) } >Save</MyButton>
 							:
-							editMode === EDIT_MODE.EDIT ? <button className='btn btn-outline-danger m-3' onClick={ () => saveNewTask (EDIT_MODE.EDIT) } >Update</button>
-							:
-							<h4>Task is in work. View mode</h4>
-							}
-							<button className='btn btn-outline-danger m-3' onClick={ () => navigate(`/task/list`) } >Close</button>
-						</div>
-						
-					</div>
-				</div>
-				<div className='col-12 col-lg-6 font-comfortaa'>
-					<div className='container  bg-white p-5 pb-3pt-3 shadow-lg'>
-						<h6>Resources</h6>
-						{ !(editMode === EDIT_MODE.CREATE) ? <ResourcesUsed id={task.id}/> : '' }
-					</div>
-				</div>
+							editMode === EDIT_MODE.EDIT ?
+								<MyButton className='btn btn-outline-danger m-3' onClick={ () => saveNewTask (EDIT_MODE.EDIT) } >Update</MyButton>
+								:
+								<h4>Task is in work. View mode</h4>
+						}
+						<MyButton className='btn btn-outline-danger m-3' onClick={ () => navigate(`/task/list`) } >Close</MyButton>
+					</ButtonSection>
+				</WhitePageSection>
+				<WhitePageSection>
+					<h6>Resources</h6>
+					{!(editMode === EDIT_MODE.CREATE) ?
+						<ResourcesUsed id={task.id}/>
+						:
+						''
+					}
+				</WhitePageSection>
 			</div>
 		</div>
-	)
-}
-
-
-const TaskRow = (props) => {
-	return (
-		<tr key={props.i} >
-			<td className="col-1" >{props.i+1}</td>
-			<td className="col-4" >
-				<select name="recipeId" id="" value={props.item.recipeId} onChange={(e) => props.choseRecipe(e,props.i)} >
-					<option value="" disabled selected ></option>
-						{props.recipeList.map ( ( value,i ) => 
-								<option key={i} value={value.id} >{value.name}</option>)}
-				</select>
-			</td>
-			<td className="col-2 text-center" >
-				{props.item.quantityInRecipe}
-			</td>
-			<td className="col-1 text-center" >
-				{props.item.unit_name}
-			</td>
-			<td className='col-2'>
-				<input  className='text-end w-100' type="text" name="quantity" value={props.item.quantity} onChange={(e) => props.changeQuantity (e, props.i)} /> 
-			</td>
-			<td className="col-2 text-center" >
-				{props.item.totalQuantity}
-			</td>
-			<td className='align-middle text-center ' >
-				<i className="bi bi-x-square" style={{'font-size': '1.3rem', color: "#BD302D"}}
-					onClick={(e) => {props.removeRecipe (e, props.i) }}></i>
-			</td>
-		</tr>
 	)
 }
 
