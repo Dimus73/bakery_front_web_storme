@@ -10,7 +10,7 @@ import equipment from "../Catalog/Equipment";
 import MyButton from "../UI/Button/MyButton";
 
 
-const ResourcesUsed = (props) => {
+const ResourcesUsed = ({id,refresh}) => {
 	const [resource, setResource] = useState(
 		{
 			ingredients:[{}],
@@ -22,7 +22,8 @@ const ResourcesUsed = (props) => {
 	const dispatch = useDispatch();
 
 	// console.log('Resource props.id=>', props.id);
-	const id = props.id;
+	// const id = props.id;
+	// const ref
 	// const id=93;
 
 	const getResource = async (id) => { 
@@ -67,7 +68,7 @@ const ResourcesUsed = (props) => {
 			getResource(id);
 		}
 		t ();
-	},[props.id])
+	},[id])
 
 
 	// **************** Call Pushes List
@@ -155,6 +156,7 @@ const ResourcesUsed = (props) => {
 	]
 	return (
 		<div className="container pt-3">
+			{`Refresh ${refresh}`}
 			<div className="row">
 				<div className="row">
 					<TableSection>

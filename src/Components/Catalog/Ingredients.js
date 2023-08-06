@@ -13,7 +13,7 @@ import Breadcrumbs from "../UI/breadcrumbs/Breadcrumbs";
 import WhitePageSection from "./UI/white_page_section/WhitePageSection";
 import CatalogActionButton from "./ButtonAction/CatalogActionButton";
 import ModalWindow from "../UI/Modal/ModalWindow";
-import {useFetching} from "./Hooks/useFetching";
+import {useFetching} from "../Hooks/useFetching";
 import CatalogIngredientsService from "./API/CatalogIngredientService";
 import {useList} from "./Hooks/useList";
 import CatalogIngredientValidation from "./Validation/catalogIngredientValidation";

@@ -21,11 +21,13 @@ const BaseTable = ({fieldsList, elementsList, catalogActionButton}) => {
                 </thead>
                 <tbody className='font-roboto'>
                     {elementsList.map((item,i) =>
-                        <RowOfTable
+                    { if (item)
+                        return (<RowOfTable
                             key={i} item = {{...item,i}}
                             fieldsList = {fieldsList}
                             catalogActionButton = {catalogActionButton}
-                        />
+                        />)
+                    }
                     )}
                 </tbody>
             </table>

@@ -5,7 +5,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { emptyRecipe } from '../Recipe/EmptyRecipe';
 import  ResourcesUsed  from './ResourcesUsed';
 import './CreateTask.css';
-import breadcrumbs from "../UI/breadcrumbs/Breadcrumbs";
 import Breadcrumbs from "../UI/breadcrumbs/Breadcrumbs";
 import {tableActionType} from "../UI/Table/tableActionsType";
 import {tableFieldType} from "../UI/Table/tableFieldType";
@@ -17,6 +16,10 @@ import DateInput from "./DateInput";
 import DateSection from "./UI/DateSection";
 import WhitePageSection from "./UI/WhitePageSection";
 import * as PropTypes from "prop-types";
+import ModalWindow from "../UI/Modal/ModalWindow";
+import {useFetching} from "../Hooks/useFetching";
+import TaskServiceAPI from "./API/TaskServiceAPI";
+import {EDIT_MODE} from "./utils/createTaskMode";
 
 
 const emptyTask = {
@@ -31,11 +34,11 @@ const emptyTask = {
 	isReady : false
 }
 
-const EDIT_MODE ={
-	CREATE : 'create',
-	EDIT : 'edit',
-	VIEW : 'view',
-}
+// const EDIT_MODE ={
+// 	CREATE : 'create',
+// 	EDIT : 'edit',
+// 	VIEW : 'view',
+// }
 
 
 const CreateTask = () => {
@@ -45,6 +48,10 @@ const CreateTask = () => {
 	const [recipeList, setRecipeList] = useState([{}]);
 
 	const [editMode, setEditMode] = useState (EDIT_MODE.CREATE)
+
+	const [modalMessage, setModalMessage] = useState('');
+
+	const [refreshResource, setRefreshResource] = useState(0);
 
 	const user = useSelector ( (state) =>(state.user) )
 	const dispatch = useDispatch ();
@@ -63,107 +70,115 @@ const CreateTask = () => {
 	// console.log('PARAMS =>', params);
 	const navigate = useNavigate();
 
+	const [loadRecipe, loadRecipeMessageError, loadRecipeClearMessageError] =
+		useFetching(async () => {
+			const data = await TaskServiceAPI.getRecipeList();
+			setRecipeList(data);
+		})
+
+	const [loadTask, loadTaskMessageError, loadTaskClearMessageError] =
+		useFetching( async (id, token) => {
+			const data = await TaskServiceAPI.getTask(id, token);
+			setEditMode (EDIT_MODE.EDIT);
+
+			const tDate = new Date(data.date)
+			const year = tDate.getFullYear();
+			const month = String(tDate.getMonth() + 1).padStart(2, '0');
+			const day = String(tDate.getDate()).padStart(2, '0');
+			const formattedDate = `${year}-${month}-${day}`;
+
+			data.date = formattedDate;
+			data.user_id = user.userId;
+			data.taskList.push({});
+			setTask({...data})
+		})
+
+	const [saveTask, saveTaskMessageError, saveTaskClearMessageError] =
+		useFetching ( async ( id, token, mode, dataToSave ) => {
+			const data = await TaskServiceAPI.saveTask(id, token, mode, dataToSave);
+			setEditMode(EDIT_MODE.EDIT);
+			const tDate = new Date(data.date)
+			data.date = tDate.toISOString().split('T')[0];
+			data.user_id = user.userId
+			data.taskList.push ({});
+			// console.log('resultJS0', resultJS);
+			setTask ({...data})
+			setRefreshResource(current => current+1)
+
+			}
+
+		)
 
 // ---------------------------
 // Function to read the list of available recipes
 // ---------------------------
 
-	const getRecipeList = async () => {
-		const BASE_URL = process.env.REACT_APP_BASE_URL
-		const URL = BASE_URL + '/api/recipe'
-
-		const reqData = {
-			method : 'GET',
-			headers:{
-				'Content-type' : 'application/json',
-				'Authorization' : 'Bearer ' + user.token
-			},
-		}
-
-		try {
-			dispatch ( setLoader (true) );
-			const data = await fetch(URL, reqData);
-			const dataJS = await data.json();
-			dispatch ( setLoader (false) );
-			// console.log(data, dataJS);
-			if (data.ok) {
-				setRecipeList (dataJS);
-			} else {
-				alert(`Error getting list of recipes. Status: ${data.status}. Message: ${dataJS.msg}`)
-			}
-		} catch (error) {
-			dispatch ( setLoader (false) );
-			console.log(error);
-			alert (`Error getting list of recipes. Message: ${error}`)
-		}
-	}
-
 	useEffect (() =>{
 
 		const tt = async () => {
-			await getRecipeList ();
+			await loadRecipe ();
 			if ('id' in params){
-				await getTask (params.id)
+				// await getTask (params.id)
+				await loadTask (params.id, user.token);
 			}
 		}
 		tt ();
 
 	},[])
 
+	useEffect( () =>{
+		setModalMessage(  loadRecipeMessageError +
+								loadTaskMessageError +
+								saveTaskMessageError);
+	},
+	[loadRecipeMessageError, loadTaskMessageError, saveTaskMessageError])
+
 	// ---------------------------
 	// Function for getting task in edit mode
 	// ---------------------------
-	const getTask = async (id) => {
-		const BASE_URL = process.env.REACT_APP_BASE_URL
-		const URL = BASE_URL + '/api/task/'+id
-
-		const reqData = {
-			method : 'GET',
-			headers:{
-				'Content-type' : 'application/json',
-				'Authorization' : 'Bearer ' + user.token
-			},
-		}
-
-		try {
-			dispatch ( setLoader (true) );
-			const result = await fetch(URL, reqData);
-			const resultJS = await result.json();
-			dispatch ( setLoader (false) );
-			if (result.ok){
-				setEditMode(EDIT_MODE.EDIT);
-				// console.log('DATE :', resultJS.date);
-				const tDate = new Date(resultJS.date)
-
-				const year = tDate.getFullYear();
-				const month = String(tDate.getMonth() + 1).padStart(2, '0');
-				const day = String(tDate.getDate()).padStart(2, '0');
-				const formattedDate = `${year}-${month}-${day}`;
-				
-				const options = {
-					year: 'numeric',
-					month: '2-digit',
-					day: '2-digit',
-					timeZone: 'Asia/Jerusalem'
-				};
-				// resultJS.date = tDate.toLocaleString('en-US', options);
-				// resultJS.date = tDate.toISOString().split('T')[0];
-				resultJS.date = formattedDate;
-				resultJS.user_id = user.userId
-				
-				resultJS.taskList.push ({});
-				// console.log('resultJS0', resultJS);
-				setTask ({...resultJS})
-			} else {
-				alert(`Error getting list of recipes. Status: ${result.status}. Message: ${resultJS.msg}`)
-			}
-		} catch (error) {
-			dispatch ( setLoader (false) );
-			console.log(error);
-			alert (`Error getting list of recipes. Message: ${error}`)		
-		}
-
-	}
+	// const getTask = async (id) => {
+	// 	const BASE_URL = process.env.REACT_APP_BASE_URL
+	// 	const URL = BASE_URL + '/api/task/'+id
+	//
+	// 	const reqData = {
+	// 		method : 'GET',
+	// 		headers:{
+	// 			'Content-type' : 'application/json',
+	// 			'Authorization' : 'Bearer ' + user.token
+	// 		},
+	// 	}
+	//
+	// 	try {
+	// 		dispatch ( setLoader (true) );
+	// 		const result = await fetch(URL, reqData);
+	// 		const resultJS = await result.json();
+	// 		dispatch ( setLoader (false) );
+	// 		if (result.ok){
+	// 			setEditMode(EDIT_MODE.EDIT);
+	// 			// console.log('DATE :', resultJS.date);
+	// 			const tDate = new Date(resultJS.date)
+	//
+	// 			const year = tDate.getFullYear();
+	// 			const month = String(tDate.getMonth() + 1).padStart(2, '0');
+	// 			const day = String(tDate.getDate()).padStart(2, '0');
+	// 			const formattedDate = `${year}-${month}-${day}`;
+	//
+	// 			resultJS.date = formattedDate;
+	// 			resultJS.user_id = user.userId
+	//
+	// 			resultJS.taskList.push ({});
+	// 			// console.log('resultJS0', resultJS);
+	// 			setTask ({...resultJS})
+	// 		} else {
+	// 			alert(`Error getting list of recipes. Status: ${result.status}. Message: ${resultJS.msg}`)
+	// 		}
+	// 	} catch (error) {
+	// 		dispatch ( setLoader (false) );
+	// 		console.log(error);
+	// 		alert (`Error getting list of recipes. Message: ${error}`)
+	// 	}
+	//
+	// }
 
 
 	// ---------------------------
@@ -171,51 +186,57 @@ const CreateTask = () => {
 	// ---------------------------
 
 	const saveNewTask = async (mode) => {
-		const BASE_URL = process.env.REACT_APP_BASE_URL
-		const URL = BASE_URL + '/api/task'
-
-		// console.log('No CLEANER DATA to save', task);
-
+		// const BASE_URL = process.env.REACT_APP_BASE_URL
+		// const URL = BASE_URL + '/api/task'
+		//
+		// // console.log('No CLEANER DATA to save', task);
+		//
+		// const data = clearData(task)
+		//
+		// // console.log('Client DATA to save', data, mode);
+		// if (taskDataCheck ( data )) {
+		// 	const reqData = {
+		// 		method : mode === EDIT_MODE.CREATE ? 'POST' : 'PUT',
+		// 		headers:{
+		// 			'Content-type' : 'application/json',
+		// 			'Authorization' : 'Bearer ' + user.token
+		// 		},
+		// 		body : JSON.stringify(data),
+		// 	}
+		//
+		// 	try {
+		// 		dispatch ( setLoader (true) );
+		// 		const result = await fetch(URL, reqData);
+		// 		const resultJS = await result.json();
+		// 		dispatch ( setLoader (false) );
+		// 		// console.log('After saving data:', resultJS);
+		// 		if (result.ok){
+		// 			// console.log('After saving data:', resultJS);
+		// 			setEditMode(EDIT_MODE.EDIT);
+		//
+		// 			const tDate = new Date(resultJS.date)
+		// 			resultJS.date = tDate.toISOString().split('T')[0];
+		// 			resultJS.user_id = user.userId
+		// 			resultJS.taskList.push ({});
+		// 			// console.log('resultJS0', resultJS);
+		// 			setTask ({...resultJS})
+		//
+		// 		} else {
+		// 			alert(`Error getting list of recipes. Status: ${result.status}. Message: ${resultJS.msg}`)
+		// 		}
+		//
+		// 	} catch (error) {
+		// 		dispatch ( setLoader (false) );
+		// 		console.log(error);
+		// 		alert (`Error getting list of recipes. Message: ${error}`)
+		// 	}
+		//
+		// }
 		const data = clearData(task)
 
 		// console.log('Client DATA to save', data, mode);
 		if (taskDataCheck ( data )) {
-			const reqData = {
-				method : mode === EDIT_MODE.CREATE ? 'POST' : 'PUT',
-				headers:{
-					'Content-type' : 'application/json',
-					'Authorization' : 'Bearer ' + user.token
-				},
-				body : JSON.stringify(data),
-			}
-	
-			try {
-				dispatch ( setLoader (true) );
-				const result = await fetch(URL, reqData);
-				const resultJS = await result.json();
-				dispatch ( setLoader (false) );
-				// console.log('After saving data:', resultJS);
-				if (result.ok){
-					// console.log('After saving data:', resultJS);
-					setEditMode(EDIT_MODE.EDIT);
-	
-					const tDate = new Date(resultJS.date)
-					resultJS.date = tDate.toISOString().split('T')[0];
-					resultJS.user_id = user.userId
-					resultJS.taskList.push ({});
-					// console.log('resultJS0', resultJS);
-					setTask ({...resultJS})
-	
-				} else {
-					alert(`Error getting list of recipes. Status: ${result.status}. Message: ${resultJS.msg}`)
-				}
-	
-			} catch (error) {
-				dispatch ( setLoader (false) );
-				console.log(error);
-				alert (`Error getting list of recipes. Message: ${error}`)		
-			}
-	
+			saveTask (0,user.token, mode, data);
 		}
 
 	}
@@ -347,9 +368,27 @@ const CreateTask = () => {
 		}
 	]
 
+	const clearAllMessages = () => {
+		if (loadRecipeMessageError) {
+			loadRecipeClearMessageError();
+			navigate('/');
+		}
+
+		if (loadTaskMessageError) {
+			loadTaskClearMessageError();
+			navigate('/');
+		}
+		if (saveTaskMessageError){
+			saveTaskClearMessageError();
+		}
+		setModalMessage('');
+	}
 
 	return (
+
 		<div className="container">
+			{modalMessage &&
+				<ModalWindow title={'Error'} body={modalMessage} closeAction={clearAllMessages}/>}
 			{editMode === EDIT_MODE.CREATE ?
 				<Breadcrumbs>
 					CREATE daily task
@@ -387,7 +426,7 @@ const CreateTask = () => {
 				<WhitePageSection>
 					<h6>Resources</h6>
 					{!(editMode === EDIT_MODE.CREATE) ?
-						<ResourcesUsed id={task.id}/>
+						<ResourcesUsed id={task.id} refresh={refreshResource}/>
 						:
 						''
 					}

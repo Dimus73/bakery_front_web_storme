@@ -1,5 +1,5 @@
 import {useDispatch} from "react-redux";
-import {setLoader} from "../../../redux/action";
+import {setLoader} from "../../redux/action";
 import {useState} from "react";
 
 export const useFetching = (callBack) => {

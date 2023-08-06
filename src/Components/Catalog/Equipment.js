@@ -12,7 +12,7 @@ import TableSection from "./UI/folder_section/TableSection";
 import EnterSection from "./UI/enter_section/EnterSection";
 import WhitePageSection from "./UI/white_page_section/WhitePageSection";
 import CatalogEquipmentService from "./API/CatalogEquipmentService";
-import {useFetching} from "./Hooks/useFetching";
+import {useFetching} from "../Hooks/useFetching";
 import ModalWindow from "../UI/Modal/ModalWindow";
 import CatalogEquipmentValidation from "./Validation/catalogEquipmentValidation";
 import CatalogActionButton from "./ButtonAction/CatalogActionButton";
