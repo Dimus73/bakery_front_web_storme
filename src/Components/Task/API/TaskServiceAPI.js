@@ -45,6 +45,6 @@ export default class TaskServiceAPI {
                 }
 
         })
-        return response;
+        return response.data;
     }
 }

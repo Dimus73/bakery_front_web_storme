@@ -8,15 +8,17 @@ import BaseTable from "../UI/Table/BaseTable";
 import TableSection from "./UI/TableSection";
 import equipment from "../Catalog/Equipment";
 import MyButton from "../UI/Button/MyButton";
+import ButtonSection from "./UI/ButtonSection";
 
 
-const ResourcesUsed = ({id,refresh}) => {
-	const [resource, setResource] = useState(
-		{
-			ingredients:[{}],
-			equipments :[{}],
-		}
-		);
+// const ResourcesUsed = ({id,refresh}) => {
+const ResourcesUsed = ({resource}) => {
+	// const [resource, setResource] = useState(
+	// 	{
+	// 		ingredients:[{}],
+	// 		equipments :[{}],
+	// 	}
+	// 	);
 	const user = useSelector ((state) => state.user);
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
@@ -26,49 +28,49 @@ const ResourcesUsed = ({id,refresh}) => {
 	// const ref
 	// const id=93;
 
-	const getResource = async (id) => { 
-		const BASE_URL = process.env.REACT_APP_BASE_URL
-		const URL = BASE_URL + '/api/task/resource/' + id
-		
-		const reqData = {
-			method : 'GET',
-			headers:{
-				'Content-type' : 'application/json',
-				'Authorization' : 'Bearer ' + user.token
-			},
-		}
+	// const getResource = async (id) => {
+	// 	const BASE_URL = process.env.REACT_APP_BASE_URL
+	// 	const URL = BASE_URL + '/api/task/resource/' + id
+	//
+	// 	const reqData = {
+	// 		method : 'GET',
+	// 		headers:{
+	// 			'Content-type' : 'application/json',
+	// 			'Authorization' : 'Bearer ' + user.token
+	// 		},
+	// 	}
+	//
+	// 	try {
+	// 		dispatch ( setLoader (true) );
+	// 		const data = await fetch(URL, reqData);
+	// 		const dataJS = await data.json();
+	// 		dispatch ( setLoader (false) );
+	// 		console.log('Resource from DB=>', data, dataJS);
+	// 		if (data.ok) {
+	// 			setResource (dataJS);
+	// 		} else {
+	// 			alert(`Error getting list of recipes. Status: ${data.status}. Message: ${dataJS.msg}`)
+	// 		}
+	// 	} catch (error) {
+	// 		dispatch ( setLoader (false) );
+	// 		console.log(error);
+	// 		alert (`Error getting list of recipes. Message: ${error}`)
+	// 	}
+	// }
 
-		try {
-			dispatch ( setLoader (true) );
-			const data = await fetch(URL, reqData);
-			const dataJS = await data.json();
-			dispatch ( setLoader (false) );
-			console.log('Resource from DB=>', data, dataJS);
-			if (data.ok) {
-				setResource (dataJS);
-			} else {
-				alert(`Error getting list of recipes. Status: ${data.status}. Message: ${dataJS.msg}`)
-			}
-		} catch (error) {
-			dispatch ( setLoader (false) );
-			console.log(error);
-			alert (`Error getting list of recipes. Message: ${error}`)
-		}
-	}
-
-	useEffect (() =>{
-		const t = async () => {
-			getResource(id);
-		}
-		t ();
-	},[])
-
-	useEffect (() =>{
-		const t = async () => {
-			getResource(id);
-		}
-		t ();
-	},[id])
+	// useEffect (() =>{
+	// 	const t = async () => {
+	// 		getResource(id);
+	// 	}
+	// 	t ();
+	// },[])
+	//
+	// useEffect (() =>{
+	// 	const t = async () => {
+	// 		getResource(id);
+	// 	}
+	// 	t ();
+	// },[id])
 
 
 	// **************** Call Pushes List
@@ -156,21 +158,17 @@ const ResourcesUsed = ({id,refresh}) => {
 	]
 	return (
 		<div className="container pt-3">
-			{`Refresh ${refresh}`}
+			{/*{`Refresh ${refresh}`}*/}
 			<div className="row">
 				<div className="row">
 					<TableSection>
 						<BaseTable fieldsList={fieldsIngredientsList} elementsList={resource.ingredients}/>
 					</TableSection>
 				</div>
-				<div className="row ">
-				  <div className="col text-start">
-						<MyButton className="btn btn-outline-danger" onClick={ callSpanList }>To production</MyButton>
-					</div>
-					<div className="col text-end">
-						<MyButton className="btn btn-outline-danger" onClick={ callPushesList }>Purchase</MyButton>
-					</div>
-				</div>
+				<ButtonSection className="mt-3 mb-5 justify-content-between">
+						<MyButton className="me-3" onClick={ callSpanList }>To production</MyButton>
+						<MyButton className="" onClick={ callPushesList }>Purchase</MyButton>
+				</ButtonSection>
 
 				<div className="row"> 
 					<TableSection>

@@ -4,8 +4,6 @@ import { setLoader } from '../../redux/action';
 import { useNavigate, Link  } from "react-router-dom";
 import ResourcesUsed from './ResourcesUsed';
 import './TaskList.css';
-import {useFetching} from "../Hooks/useFetching";
-import TaskServiceAPI from "./API/TaskServiceAPI";
 
 const TaskList = () => {
 	const user = useSelector (state => state.user);
@@ -13,7 +11,7 @@ const TaskList = () => {
 
 	const tDate = new Date();
 	const [ taskList, setTaskList ] = useState ( [ { date:tDate.toISOString() } ] );
-	// const [ activeTask, setActiveTask ] = useState ( 0 );
+	const [ activeTask, setActiveTask ] = useState ( 0 );
 
 	const [resource, setResource] = useState(
 		{
@@ -21,13 +19,6 @@ const TaskList = () => {
 			equipments :[{}],
 		}
 	);
-
-	const [loadResource, loadResourceErrorMessage, loadResourceClearErrorMessage] =
-		useFetching( async (id, token) => {
-				const data = await TaskServiceAPI.getResource(id, token);
-				setResource( data );
-			}
-		)
 
 	const navigate = useNavigate ();
 
@@ -51,8 +42,7 @@ const TaskList = () => {
 			// console.log('GET List dataJS =>', dataJS);
 			if (data.ok) {
 				setTaskList ( [...dataJS] );
-				// setActiveTask ( dataJS[0].id )
-				await loadResource(dataJS[0].id, user.token)
+				setActiveTask ( dataJS[0].id )
 			}
 			else {
 				console.log(`Error getting list of recipes. Status: ${data.status}. Message: ${data.msg}`)
@@ -74,13 +64,8 @@ const TaskList = () => {
 		t();
 	},[]);
 
-	const actionActiveTask = async ( id ) => {
-		// setActiveTask(id);
-		await loadResource(id, user.token)
-	}
 	console.log('taskList', taskList);
-	console.log('Resource =>', resource);
-
+	
 	return (
 		<div className='container '>
 			<div className='row'>
@@ -99,7 +84,7 @@ const TaskList = () => {
 										</tr>
 									</thead>
 									<tbody  className='font-roboto'>
-										{ taskList.map ((value, i) => <TaskLine item={value} i={i}  setActiveTask={actionActiveTask} navigate={navigate}/> )}
+										{ taskList.map ((value, i) => <TaskLine item={value} i={i} activeTask={activeTask} setActiveTask={setActiveTask} navigate={navigate}/> )}
 									</tbody>
 							</table>
 						</div>
@@ -113,7 +98,7 @@ const TaskList = () => {
 					<div className='container  bg-white p-5 pb-3pt-3 shadow-lg'>
 						<h6>Resources</h6>
 						<div className=''>
-							<ResourcesUsed resource={resource} />
+							<ResourcesUsed id={activeTask} />
 						</div>
 					</div>
 				</div>

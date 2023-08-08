@@ -1,8 +1,8 @@
 import React from 'react';
 
-const ButtonSection = ({children, ...props}) => {
+const ButtonSection = ({children, className, ...props}) => {
     return (
-        <div {...props} >
+        <div className={`flex-row d-flex ${className}`} {...props} >
             {children}
         </div>
     );
